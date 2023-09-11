@@ -2,9 +2,10 @@
 const models = require('../../models');
 const logger = require('../../config/logger');
 const User = models.user;
-const planetController = {
-    getPlanets: async (req, res) => {
+const usersController = {
+    getAllUsers: async (req, res) => {
         try {
+            console.log("hey")
             const user = await User.create({
                 full_name: "Sidhil Sivadas M",
                 email: "test@test.com",
@@ -23,4 +24,4 @@ const planetController = {
     }
 }
 
-module.exports = planetController;
+module.exports = usersController;
