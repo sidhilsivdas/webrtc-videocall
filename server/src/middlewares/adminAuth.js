@@ -9,9 +9,11 @@ const adminAuth = async (req, res, next) => {
             return res.status(401).json({"status":"error","message":"Invalid access token"});
         }
         const userData = await User.findOne({ where: { access_token: accessToken } });
-        if (userData === null) {
+        if (!userData) {
             return res.status(401).json({"status":"error","message":"Invalid access token"});
         } else {
+            req.user = {};
+            Object.assign(req.user, userData.dataValues); 
             next();
         }
     }

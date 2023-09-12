@@ -20,7 +20,8 @@ module.exports = (sequelize, DataTypes) => {
             email: DataTypes.STRING,
             password: DataTypes.STRING,
             access_token: DataTypes.STRING,
-            role:DataTypes.STRING
+            role:DataTypes.STRING,
+            created_by: DataTypes.INTEGER
             
         },
         {
