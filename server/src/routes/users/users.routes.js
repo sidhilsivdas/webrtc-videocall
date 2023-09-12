@@ -4,7 +4,8 @@ const usersRouter = express.Router();
 
 usersRouter.get("/", usersController.getAllUsers);
 usersRouter.post("/", usersController.createUser);
-//launchesRouter.post("/", launchesController.addLaunch);
-//launchesRouter.delete("/:launchId", launchesController.abortLaunch);
+usersRouter.put("/:id", usersController.updateUser);
+usersRouter.delete("/:id", usersController.deleteUser);
+
 
 module.exports = usersRouter;

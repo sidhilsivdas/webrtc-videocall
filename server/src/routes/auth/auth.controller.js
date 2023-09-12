@@ -31,7 +31,7 @@ const authController = {
                 return res.status(200).json({"status":"success","message":"Login success",data:{
                     access_token
                 }});
-              }
+            }
               
 
             
@@ -39,7 +39,7 @@ const authController = {
         } catch (err) {
             logger.error(err);
             console.log(err);
-            return res.json({"message":"error"});
+            return res.json({"status":"error"});
         }
 
     }

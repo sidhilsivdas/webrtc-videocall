@@ -1,7 +1,7 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-    class User extends Model {
+    class Category extends Model {
         /**
          * Helper method for defining associations.
          * This method is not a part of Sequelize lifecycle.
@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }
 
-    User.init(
+    Category.init(
         {
             id:{
                 type:DataTypes.INTEGER,          
@@ -21,28 +21,24 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull:false,
                 primaryKey:true
             },
-            full_name: DataTypes.STRING,
-            email: DataTypes.STRING,
-            password: DataTypes.STRING(1000),
-            access_token: DataTypes.STRING(1000),
-            role:DataTypes.STRING,
+            category_name: DataTypes.STRING,
             created_by: DataTypes.INTEGER,
             created_at:{ 
                 type: DataTypes.DATE,
                 allowNull: false,
-                defaultValue: sequelize.literal('CURRENT_TIMESTAMP')
+                //defaultValue: sequelize.literal('CURRENT_TIMESTAMP')
             },
             updated_at:{ 
                 type: DataTypes.DATE,
                 allowNull: false,
-                defaultValue: sequelize.literal("current_timestamp on update current_timestamp"),
+                defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
                 //onUpdate: sequelize.literal("CURRENT_TIMESTAMP")
             }
             
         },
         {
             sequelize,
-            modelName: 'user',
+            modelName: 'category',
             underscored: true,
             paranoid: true,  
             deletedAt: 'deleted_at',
@@ -50,6 +46,6 @@ module.exports = (sequelize, DataTypes) => {
             updatedAt: "updated_at"
         },
     );
-    //await User.sync({alter:true});
-    return User;
+    //let result = await Category.sync({alter:true});
+    return Category;
 };

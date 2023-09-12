@@ -1,10 +1,13 @@
 const models = require('../models');
 //const logger = require('../config/logger');
 const User = models.user;
+
 const adminAuth = async (req, res, next) => {
     try {
+        console.log("ss", models.user)
         //logger.error({"hhhhh":"xxxx"});
         const accessToken = req.headers['access-token'];
+        //console.log(accessToken)
         if(!accessToken){
             return res.status(401).json({"status":"error","message":"Invalid access token"});
         }
@@ -18,6 +21,7 @@ const adminAuth = async (req, res, next) => {
         }
     }
     catch (err) {
+        console.log(err)
         return res.status(401).json({"status":"error","message":"Invalid access token"});
     }
 

@@ -7,8 +7,12 @@ module.exports = {
         database: config.dbName,
         host: config.dbHost,
         dialect: 'mysql',
+        timezone: '+05:30',
         dialectOptions: {
             bigNumberStrings: true,
+            dateStrings: true,
+            typeCast: true
+            //useUTC: false,
         },
     },
     test: {
@@ -19,6 +23,8 @@ module.exports = {
         dialect: 'mysql',
         dialectOptions: {
             bigNumberStrings: true,
+            dateStrings: true,
+            typeCast: true
         },
     },
     production: {
@@ -30,6 +36,8 @@ module.exports = {
         dialect: 'mysql',
         dialectOptions: {
             bigNumberStrings: true,
+            dateStrings: true,
+            typeCast: true
         },
     },
 };

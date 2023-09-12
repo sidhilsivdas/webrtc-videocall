@@ -8,33 +8,27 @@ const User = models.user;
 const usersController = {
     getAllUsers: async (req, res) => {
         try {
-            
-            const user = await User.create({
-                full_name: "Sidhil Sivadas M",
-                email: "test@test.com",
-                password: '112233',
-                access_token: 'ddd',
-                role:'admin'
-            });
 
-            return res.json(user);
+            const users = await User.findAll();
+
+            return res.json({ "status": "success", "data": {items: users}});
         } catch (err) {
             logger.error(err);
             console.log(err);
-            return res.json({"message":"error"});
+            return res.json({ "status": "error" });
         }
 
     },
     createUser: async (req, res) => {
         try {
-            console.log(req.user.id)
-            const {full_name, email, password, role} = req.body;
-            if(!(full_name && email && password && role)){
-                return res.status(422).json({"status":"error","message":"Invalid form data"});
+
+            const { full_name, email, password, role } = req.body;
+            if (!(full_name && email && password && role)) {
+                return res.status(422).json({ "status": "error", "message": "Invalid form data" });
             }
             const userData = await User.findOne({ where: { email: email } });
-            if(userData){
-                return res.status(422).json({"status":"error","message":"Email already exists"});
+            if (userData) {
+                return res.status(422).json({ "status": "error", "message": "Email already exists" });
             }
             let encryptedPassword = await bcrypt.hash(password, 10);
             const formData = {
@@ -45,14 +39,14 @@ const usersController = {
                 role,
                 created_by: +req.user.id
             };
-           
+
             const user = await User.create(formData);
 
             const access_token = jwt.sign(
-                { userId: user.id, email },
-                  config.jwt.secret,
+                { id: user.id, email },
+                config.jwt.secret,
                 {
-                  //expiresIn: config.jwt.refreshExpirationDays,
+                    //expiresIn: config.jwt.refreshExpirationDays,
                 }
             );
 
@@ -60,13 +54,84 @@ const usersController = {
                 { access_token },
                 { where: { id: user.id } }
             )
-            
 
-            return res.json({status:"success","mesage":"Created",data:{userId:user.id, full_name, email, role}});
+
+            return res.json({ status: "success", "message": "Created", data: { id: user.id, full_name, email, role } });
         } catch (err) {
             logger.error(err);
             console.log(err);
-            return res.status(500).json({"message":"error"});
+            return res.status(500).json({ "status": "error" });
+        }
+
+    },
+
+    updateUser: async (req, res) => {
+        try {
+            const { full_name, email, password, role } = req.body;
+            if (!(full_name && email && password && role)) {
+                return res.status(422).json({ "status": "error", "message": "Invalid form data" });
+            }
+            const userData = await User.findOne({ where: { id: req.params.id } });
+            const UserDataByEmail = await User.findOne({ where: { email: email } });
+
+            if (!userData) {
+                return res.status(404).json({ "status": "error", "message": "User not found" });
+            }
+            if (UserDataByEmail && userData.id != UserDataByEmail.id) {
+                return res.status(422).json({ "status": "error", "message": "Email already exist" });
+            }
+
+            let encryptedPassword = await bcrypt.hash(password, 10);
+            const access_token = jwt.sign(
+                { id: userData.id, email },
+                config.jwt.secret,
+                {
+                    //expiresIn: config.jwt.refreshExpirationDays,
+                }
+            );
+
+            const formData = {
+                full_name,
+                email,
+                password: encryptedPassword,
+                access_token,
+                role
+
+            };
+
+            const result = await User.update(
+                formData,
+                { where: { id: req.params.id } }
+            )
+
+            return res.json({ status: "success", "message": "User Updated", data: { id: userData.id, full_name, email, role } });
+        } catch (err) {
+            logger.error(err);
+            console.log(err);
+            return res.status(500).json({ "status": "error" });
+        }
+
+    },
+
+    deleteUser: async (req, res) => {
+        try {
+            const id = req.params.id;
+            const userData = await User.findOne({ where: { id } });
+            if (!userData) {
+                return res.status(404).json({ "status": "error", "message": "User not found" });
+            }
+
+            const result = await User.destroy({
+                where: {
+                    id
+                }
+            });
+
+            return res.json({ status: "success", "message": "User Updated", data: {} });
+        } catch (err) {
+            logger.error(err);
+            console.log(err);
+            return res.status(500).json({ "status": "error" });
         }
 
     }
