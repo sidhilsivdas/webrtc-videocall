@@ -1,7 +1,7 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-    class Category extends Model {
+    class Customer extends Model {
         /**
          * Helper method for defining associations.
          * This method is not a part of Sequelize lifecycle.
@@ -9,11 +9,11 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            Category.hasMany(models.product, {});
+          //  User.belongsTo(models.agency, { foreignKey: 'agency_id', targetKey: 'id' });
         }
     }
 
-    Category.init(
+    Customer.init(
         {
             id:{
                 type:DataTypes.INTEGER,          
@@ -21,24 +21,27 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull:false,
                 primaryKey:true
             },
-            category_name: DataTypes.STRING,
+            full_name: DataTypes.STRING,
+            email: DataTypes.STRING,
+            address: DataTypes.STRING(1000),
+            phone: DataTypes.INTEGER,
             created_by: DataTypes.INTEGER,
             created_at:{ 
                 type: DataTypes.DATE,
                 allowNull: false,
-                //defaultValue: sequelize.literal('CURRENT_TIMESTAMP')
+                defaultValue: sequelize.literal('CURRENT_TIMESTAMP')
             },
             updated_at:{ 
                 type: DataTypes.DATE,
                 allowNull: false,
-                defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+                defaultValue: sequelize.literal("current_timestamp"),
                 //onUpdate: sequelize.literal("CURRENT_TIMESTAMP")
             }
             
         },
         {
             sequelize,
-            modelName: 'category',
+            modelName: 'customer',
             underscored: true,
             paranoid: true,  
             deletedAt: 'deleted_at',
@@ -46,6 +49,6 @@ module.exports = (sequelize, DataTypes) => {
             updatedAt: "updated_at"
         },
     );
-    //let result = await Category.sync({alter:true});
-    return Category;
+    //await User.sync({alter:true});
+    return Customer;
 };

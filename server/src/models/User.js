@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
             updated_at:{ 
                 type: DataTypes.DATE,
                 allowNull: false,
-                defaultValue: sequelize.literal("current_timestamp on update current_timestamp"),
+                defaultValue: sequelize.literal("current_timestamp"),
                 //onUpdate: sequelize.literal("CURRENT_TIMESTAMP")
             }
             

@@ -1,7 +1,7 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-    class Category extends Model {
+    class Color extends Model {
         /**
          * Helper method for defining associations.
          * This method is not a part of Sequelize lifecycle.
@@ -9,11 +9,11 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            Category.hasMany(models.product, {});
+            //Color.hasMany(models.product, {});
         }
     }
 
-    Category.init(
+    Color.init(
         {
             id:{
                 type:DataTypes.INTEGER,          
@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull:false,
                 primaryKey:true
             },
-            category_name: DataTypes.STRING,
+            color_name: DataTypes.STRING,
             created_by: DataTypes.INTEGER,
             created_at:{ 
                 type: DataTypes.DATE,
@@ -38,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
             sequelize,
-            modelName: 'category',
+            modelName: 'color',
             underscored: true,
             paranoid: true,  
             deletedAt: 'deleted_at',
@@ -47,5 +47,5 @@ module.exports = (sequelize, DataTypes) => {
         },
     );
     //let result = await Category.sync({alter:true});
-    return Category;
+    return Color;
 };

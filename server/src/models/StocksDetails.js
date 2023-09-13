@@ -1,7 +1,7 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-    class Category extends Model {
+    class StockDetails extends Model {
         /**
          * Helper method for defining associations.
          * This method is not a part of Sequelize lifecycle.
@@ -9,19 +9,27 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            Category.hasMany(models.product, {});
+            StockDetails.belongsTo(models.stock, { foreignKey: 'stock_id', targetKey: 'id' });
         }
     }
 
-    Category.init(
+    StockDetails.init(
         {
             id:{
-                type:DataTypes.INTEGER,          
+                type:DataTypes.BIGINT,          
                 autoIncrement:true,
                 allowNull:false,
                 primaryKey:true
             },
-            category_name: DataTypes.STRING,
+            stock_id:{
+                type:DataTypes.INTEGER,          
+                allowNull:false
+            },
+            description: DataTypes.STRING(500),
+            type:DataTypes.STRING(10),
+            quantity_in:DataTypes.INTEGER,
+            quantity_before_update:DataTypes.INTEGER,
+            quantity_after_update:DataTypes.INTEGER,
             created_by: DataTypes.INTEGER,
             created_at:{ 
                 type: DataTypes.DATE,
@@ -38,7 +46,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
             sequelize,
-            modelName: 'category',
+            modelName: 'stock_details',
             underscored: true,
             paranoid: true,  
             deletedAt: 'deleted_at',
@@ -47,5 +55,5 @@ module.exports = (sequelize, DataTypes) => {
         },
     );
     //let result = await Category.sync({alter:true});
-    return Category;
+    return StockDetails;
 };
