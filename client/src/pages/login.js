@@ -4,6 +4,7 @@ import {Link, Redirect} from 'react-router-dom';
 import TitleComponent from "./title";
 import * as Constants from '../config/constants';
 
+
 export default class Login extends Component {
 
     state = {
@@ -26,13 +27,13 @@ export default class Login extends Component {
         event.preventDefault();
         this.setState({isLoading: true});
         //this.setState({redirect: true, isLoading: false});
-        const url = Constants.API_URL+"/loginUser";
+        const url = Constants.API_URL+"/auth/login";
         
         //console.log(url);
 
          const email = this.state.email;
          const password = this.state.password;
-         let bodyFormData = {"data":{"email":email,"password":password}};
+         let bodyFormData = {"email":email,"password":password};
          //bodyFormData.set('email', email);
          //bodyFormData.set('password', password);
          const customHeaders = {
@@ -41,7 +42,7 @@ export default class Login extends Component {
          axios.post(url, bodyFormData,customHeaders)
             .then(result => {
                 var res = result.data;
-                console.log("loged in1",res.status);
+                console.log("loged in1",res.status, res.data);
                 if (res.status == "success") {
                     localStorage.setItem('token', res.data.accessToken);
                     

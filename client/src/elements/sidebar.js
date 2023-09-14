@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import * as Constants from '../config/constants';
+import jwt from 'jsonwebtoken';
 
 export default class Sidebar extends Component {
     constructor() {
@@ -87,7 +89,9 @@ export default class Sidebar extends Component {
 
 
         const userData = JSON.parse(localStorage.getItem('userData'));
-        const userType = userData.user_type;
+        const accessToken = userData.accessToken;
+        var decodedClaims = jwt.verify(accessToken, Constants.JWT_SECRET);
+        const userType = decodedClaims.role;
         var listArr = [];
         console.log("ddd", userData, userType);
         console.log("userType", userType);

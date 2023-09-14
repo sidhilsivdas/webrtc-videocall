@@ -8,7 +8,6 @@ import 'font-awesome/css/font-awesome.min.css';
 
 import ReactDOM from 'react-dom';
 import React, { Component } from 'react';
-import { BrowserRouter as Router,Routes,  Route, Switch } from 'react-router-dom';
 
 import './index.css';
 import * as serviceWorker from './serviceWorker';
@@ -18,7 +17,6 @@ import AppRouter from "./AppRouter";
 
 
 if (document.getElementById('app')) {
-  console.log("hey")
     ReactDOM.render(<AppRouter />, document.getElementById('app'));
 }
 
