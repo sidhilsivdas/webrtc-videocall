@@ -5,11 +5,12 @@ const config = require("../../config/config");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Request = models.request;
+const RequestDetails = models.request_details;
 const requestController = {
     getAll: async (req, res) => {
         try {
 
-            const result = await Color.findAll();
+            const result = await Request.findAll();
 
             return res.json({ "status": "success", "data": {items: result}});
         } catch (err) {
@@ -22,23 +23,25 @@ const requestController = {
     create: async (req, res) => {
         try {
 
-            const { color_name } = req.body;
-            if (!color_name) {
+            const { customer_id, requests } = req.body;
+            const id = req.params.id;
+            if (!(customer_id && requests)) {
                 return res.status(422).json({ "status": "error", "message": "Invalid form data" });
             }
-            const dbData = await Color.findOne({ where: { color_name } });
-            if (dbData) {
-                return res.status(422).json({ "status": "error", "message": "Color already exists" });
+
+            if (!(Array.isArray(requests) && requests.length)) {
+                return res.status(422).json({ "status": "error", "message": "Invalid requests data" });
             }
-            
-            const formData = {
-                color_name,
-                created_by:req.user.id
-            };
 
-            const color = await Color.create(formData);
+            let request = await Request.create({customer_id, created_by:req.user.id});
+            let insertArr = [];
+            requests.forEach(function (item, index) {
+                insertArr.push({...item, request_id:request.id, created_by:req.user.id});
+            });
 
-            return res.json({ status: "success", "message": "Created", data: { id: color.id, color_name } });
+            let insertRes = await RequestDetails.bulkCreate(insertArr);
+            return res.json({ status: "success", "message": "Updated", data: {} });
+           
         } catch (err) {
             logger.error(err);
             console.log(err);
