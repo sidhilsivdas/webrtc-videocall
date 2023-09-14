@@ -8,10 +8,13 @@ const User = models.user;
 const usersController = {
     getAllUsers: async (req, res) => {
         try {
+            let page = +req.query.page;
+            let perPage = +req.query.perPage;
+            page = (page-1) * perPage;
+            
+            const users = await User.findAndCountAll({attributes: ['id','full_name', 'email', 'role', 'created_at'], where:{}, offset:page, limit:perPage});
 
-            const users = await User.findAll();
-
-            return res.json({ "status": "success", "data": {items: users}});
+            return res.json({ "status": "success", "data": {items: users.rows, totalCount:users.count}});
         } catch (err) {
             logger.error(err);
             console.log(err);

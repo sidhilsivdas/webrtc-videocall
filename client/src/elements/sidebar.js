@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import * as Constants from '../config/constants';
-import jwt from 'jsonwebtoken';
+//import jwt from 'jsonwebtoken';
+//import jwt_decode from 'jwt-decode'
 
 export default class Sidebar extends Component {
     constructor() {
@@ -90,8 +91,8 @@ export default class Sidebar extends Component {
 
         const userData = JSON.parse(localStorage.getItem('userData'));
         const accessToken = userData.accessToken;
-        var decodedClaims = jwt.verify(accessToken, Constants.JWT_SECRET);
-        const userType = decodedClaims.role;
+        //var decodedClaims = jwt_decode(accessToken, Constants.JWT_SECRET);
+        const userType = userData.role;
         var listArr = [];
         console.log("ddd", userData, userType);
         console.log("userType", userType);
@@ -99,8 +100,8 @@ export default class Sidebar extends Component {
         if (userType == "admin") {
 
             listArr.push(<li key="1-1" className={"nav-item " + (this.state.data_import ? "active" : "")} >
-                <Link to={'/billing/data-import'} className="nav-link"><i className="fa fa-cloud-download" aria-hidden="true"></i>
-                    <span>&nbsp; Data Import</span></Link>
+                <Link to={'/user-management'} className="nav-link"><i className="fa fa-user" aria-hidden="true"></i>
+                    <span>&nbsp; User Management</span></Link>
             </li>);
 
             listArr.push(<li key="2" className={"nav-item " + (this.state.generate_billing ? "active" : "")} >

@@ -44,10 +44,10 @@ export default class Login extends Component {
                 var res = result.data;
                 console.log("loged in1",res.status, res.data);
                 if (res.status == "success") {
-                    localStorage.setItem('token', res.data.accessToken);
+                    localStorage.setItem('token', res.data.access_token);
                     
                     localStorage.setItem('isLoggedIn', true);
-                    localStorage.setItem('userData', JSON.stringify(res.data));
+                    localStorage.setItem('userData', JSON.stringify(res.data.userData));
                     this.setState({redirect: true, isLoading: false});
                 }
             })

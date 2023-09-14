@@ -29,7 +29,8 @@ const authController = {
                     { where: { id: userData.id } }
                 )
                 return res.status(200).json({"status":"success","message":"Login success",data:{
-                    access_token
+                    access_token,
+                    userData: { id: userData.id, full_name:userData.full_name, email:email,role:userData.role }
                 }});
             }
               

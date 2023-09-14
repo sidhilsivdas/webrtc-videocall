@@ -6,12 +6,12 @@ import * as Constants from '../config/constants';
 import { Link, Redirect } from "react-router-dom";
 import axios from 'axios';
 import LoaderDiv from "../elements/LoaderDiv";
-import CsvUpload from "./CsvUpload";
+//import CsvUpload from "./CsvUpload";
 import Alert from "../elements/Alert";
 import Pagination from "react-js-pagination";
 //require("bootstrap/less/bootstrap.less");
 
-export default class UsersList extends Component {
+export default class UserManagement extends Component {
     constructor() {
         super();
         this.state = {
@@ -19,7 +19,11 @@ export default class UsersList extends Component {
             toDashboard: false,
             isLoading: false,
             deleted: false,
-            paginateData: [],
+            paginateData: {
+                currentPage:1,
+                itemsCountPerPage:50,
+                totalItemsCount: 0
+            },
             page: 1,
             users: [],
             modalStatus: false
@@ -34,7 +38,7 @@ export default class UsersList extends Component {
 
 
     componentDidMount() {
-
+        this.setState({paginateData:{...this.state.paginateData,currentPage:1}});
         this.setData(1);
 
     }
@@ -52,12 +56,12 @@ export default class UsersList extends Component {
         const token = localStorage.getItem('token');
         var config = {
             headers: {
-                "api-token": token
+                "access-token": token
             }
         };
 
 
-        const url = Constants.API_URL + "/user/all?page=" + page;
+        const url = Constants.API_URL + "/users/?page=" + page + "&perPage="+this.state.paginateData.itemsCountPerPage;
 
 
         if (this.state.q != "") {
@@ -69,7 +73,7 @@ export default class UsersList extends Component {
                     console.log(result);
                     if (res.status == 'success') {
 
-                        this.setState({ isLoading: false, users: res.data, paginateData: res.paginateData });
+                        this.setState({ isLoading: false, users: res.data.items, paginateData: {...this.state.paginateData, totalItemsCount:res.data.totalCount} });
                         // console.log("paginate", this.state.paginateData);
 
 
@@ -135,8 +139,9 @@ export default class UsersList extends Component {
     }
 
     handlePageChange = (pageNumber) => {
+        //alert(pageNumber);
         // console.log("triggered", pageNumber);
-        this.setState({ deleted: false });
+        this.setState({ deleted: false, paginateData:{...this.state.paginateData, currentPage:pageNumber} });
         this.setData(pageNumber);
     }
 
@@ -182,7 +187,7 @@ export default class UsersList extends Component {
                             <div className="card mx-auto">
                                 <div className="card-header">
                                     <div className="row">
-                                        <div className="col-md-3"><p>Total Results : {this.state.paginateData.total ? this.state.paginateData.total : 0}</p></div>
+                                        <div className="col-md-3"><p>Total Results : {this.state.paginateData.totalItemsCount ? this.state.paginateData.totalItemsCount : 0}</p></div>
                                         <div className="col-md-9 float-right1" >
                                             <Link className="btn btn-primary float-right" to={'/users/create'} >Add New</Link>
                                         </div>
@@ -190,19 +195,17 @@ export default class UsersList extends Component {
                                 </div>
                                 <div className="card-body">
 
-                                    <div className="table-responsive">
+                                    <div className="table-responsive" style={{'max-height':'400px','overflow-x1':'scroll'}}>
                                         <table className="table table-bordered" id="dataTable" width="100%"
                                             cellSpacing="0">
                                             <thead>
                                                 <tr>
+                                                    <th>#</th>
                                                     <th>Name</th>
-                                                    <th>Address</th>
-                                                    <th>Phone</th>
                                                     <th>Email</th>
                                                     <th>User Type</th>
                                                     <th>Created At</th>
-                                                    <th>Updated At</th>
-
+                                                    
                                                     <th>Actions</th>
                                                 </tr>
                                             </thead>
@@ -216,17 +219,16 @@ export default class UsersList extends Component {
                                                 <th>Action</th>
                                             </tr>
                                             </tfoot>*/}
-                                            <tbody>
+                                            <tbody style={{'overflow-y1':'scroll'}}>
                                                 {
                                                     users && users.map((object, i) =>
                                                         <tr key={"tr-" + i}>
-                                                            <td>{object.name}</td>
-                                                            <td>{object.address}</td>
-                                                            <td>{object.phone}</td>
+                                                            <td>{object.id}</td>
+                                                            <td>{object.full_name}</td>
                                                             <td>{object.email}</td>
-                                                            <td>{object.user_type}</td>
+                                                            <td>{object.role}</td>
                                                             <td>{object.created_at}</td>
-                                                            <td>{object.updated_at}</td>
+                                                            
 
                                                             <td>
                                                                 <Link className="btn btn-danger btn-sm m-1"
@@ -242,7 +244,7 @@ export default class UsersList extends Component {
 
                                                 {
 
-                                                    users.length == 0 && <tr key="tr-1" ><td colSpan="7"><div key="div-1" align="center">No results found</div></td></tr>
+                                                    users.length == 0 && <tr key="tr-1" ><td colSpan="4"><div key="div-1" align="center">No results found</div></td></tr>
 
                                                 }
                                             </tbody>
@@ -251,7 +253,7 @@ export default class UsersList extends Component {
                                 </div>
 
                                 <div className="card-footer small text-muted">
-                                    {this.state.paginateData.count ?
+                                    {this.state.paginateData.totalItemsCount ?
                                         (<div className="row">
                                             <div className="col-md-12" >
                                                 <Pagination
@@ -263,8 +265,8 @@ export default class UsersList extends Component {
                                                     nextPageText="Next"
                                                     innerClass="pagination justify-content-end"
                                                     activePage={this.state.paginateData.currentPage}
-                                                    itemsCountPerPage={this.state.paginateData.perPage}
-                                                    totalItemsCount={this.state.paginateData.total}
+                                                    itemsCountPerPage={this.state.paginateData.itemsCountPerPage}
+                                                    totalItemsCount={this.state.paginateData.totalItemsCount}
                                                     pageRangeDisplayed={5}
                                                     onChange={this.handlePageChange.bind(this)}
                                                 />
