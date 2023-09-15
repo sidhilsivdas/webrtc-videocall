@@ -10,6 +10,195 @@ import LoaderDiv from "../elements/LoaderDiv";
 import Alert from "../elements/Alert";
 import Pagination from "react-js-pagination";
 //require("bootstrap/less/bootstrap.less");
+import { Button, Modal } from 'react-bootstrap';
+import { useState } from 'react';
+import moment from 'moment';
+
+
+const ManageModal = (props) => {
+
+    let initialFormData = {
+        //id:props.id || "",
+        full_name: props.data.formData.full_name || "",
+        email: props.data.formData.email || "",
+        password: "",
+        role: props.data.formData.role || "admin"
+    }
+
+    const [formData, setFormData] = useState(initialFormData);
+    const [errorData, setErrorData] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
+    const [formAction, setFormAction] = useState("create");
+
+    const [testdata, setTestData] = useState(false);
+
+    const validateForm = () => {
+        const formClone = { ...formData };
+        let errorDetails = {};
+
+        for (const [key, value] of Object.entries(formClone)) {
+
+            if (props.data.formFrom != "create" && key == "password") {
+                continue;
+            }
+
+            if (!value) {
+                errorDetails[key] = true
+            }
+        };
+
+        if (Object.keys(errorDetails).length != 0) {
+            setErrorData({ ...errorDetails });
+            return false;
+        }
+        console.log(errorDetails);
+        return true;
+    }
+
+    const handleInputChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    }
+
+    const handleSubmit = (e) => {
+
+        e.preventDefault();
+        setIsLoading(true);
+        const token = localStorage.getItem('token');
+
+        const headers = {
+            "access-token": token
+        }
+
+        let method;
+        let url;
+        if (props.data.formFrom == "create") {
+            url = Constants.API_URL + "/users";
+            method = "POST";
+        } else {
+            url = Constants.API_URL + "/users/" + props.data.formFrom;
+            method = "PUT";
+        }
+
+        if (validateForm()) {
+            //console.log("jjjjjjj")
+            axios({
+                method: method,
+                url: url,
+                data: formData,
+                headers
+            }).then(result => {
+                setErrorData({});
+                setIsLoading(false);
+                if (result.data.status) {
+                    //setIsLoading(false);
+                    props.setModalStatus();
+                    alert("Record Saved Successfully");
+                    //this.connectParent();
+
+                }
+            })
+                .catch(error => {
+                    if (error.response) {
+                        //props.setModalStatus();
+                        setIsLoading(false);
+                        alert(error.response.data.message ? error.response.data.message : 'Server error');
+                        //console.log(error.response.headers);
+                    }
+                });
+
+        } else {
+            setIsLoading(false);
+        }
+
+
+
+    }
+
+    return (
+        <div>
+
+
+            <Modal show={true} size="lg">
+                <Modal.Header closeButton onClick={props.setModalStatus}>
+                    <Modal.Title></Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <form onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <div className="form-row">
+                                <div className="col-md-12">
+                                    <div className="form-label-group">
+                                        <input name="full_name" value={formData.full_name} onChange={handleInputChange} type="text" className={"form-control " + (errorData.full_name ? 'is-invalid' : '')} autoFocus="autofocus" />
+                                        <label htmlFor="full_name">Enter Name</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="form-group">
+                            <div className="form-row">
+                                <div className="col-md-12">
+                                    <div className="form-label-group">
+                                        <input name="email" value={formData.email} onChange={handleInputChange} type="text" className={"form-control " + (errorData.email ? 'is-invalid' : '')} autoFocus="autofocus" />
+                                        <label htmlFor="email">Enter Email</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div className="form-group">
+                            <div className="form-row">
+                                <div className="col-md-12">
+                                    <div className="form-label-group">
+                                        <input name="password" value={formData.password} onChange={handleInputChange} type="password" className={"form-control " + (errorData.password ? 'is-invalid' : '')} autoFocus="autofocus" />
+                                        <label htmlFor="password">Enter Password</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div className="form-group">
+                            <div className="form-row">
+                                <div className="col-md-12">
+                                    <div className="form-label-group">
+                                        <select id="role" name="role" className={"form-control"} onChange={handleInputChange}>
+                                            <option value="admin" selected={formData.role == 'admin'}>Admin</option>
+                                            <option value="user" selected={formData.role == 'user'}>User</option>
+                                        </select>
+                                        {/* {<label htmlFor="role">Select Role</label>} */}
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+
+                        <button className="btn btn-primary btn-block" type="submit" disabled={isLoading ? true : false}>Save &nbsp;&nbsp;&nbsp;
+                            {isLoading ? (
+                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            ) : (
+                                <span></span>
+                            )}
+                        </button>
+
+                    </form>
+
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={props.setModalStatus}>
+                        Close
+                    </Button>
+
+                </Modal.Footer>
+            </Modal>
+
+        </div>
+    )
+}
+
 
 export default class UserManagement extends Component {
     constructor() {
@@ -20,17 +209,32 @@ export default class UserManagement extends Component {
             isLoading: false,
             deleted: false,
             paginateData: {
-                currentPage:1,
-                itemsCountPerPage:50,
+                currentPage: 1,
+                itemsCountPerPage: 50,
                 totalItemsCount: 0
             },
             page: 1,
             users: [],
-            modalStatus: false
+            modalStatus: false,
+            formFrom: "create",
+            formData: {}
         };
         //This binding removeTag is necessary to make `this` work in the callback
         //this.removeEmployee = this.removeClient.bind(this);
         //this.onFormSubmit = this.onFormSubmit.bind(this)
+    }
+
+    createData() {
+        this.setState({ modalStatus: true, formFrom: "create" });
+
+    }
+
+    updateData(obj) {
+        let newObj = { ...obj };
+        delete newObj.id;
+        delete newObj.created_at;
+        this.setState({ modalStatus: true, formFrom: obj.id, formData: { ...newObj } });
+
     }
 
 
@@ -38,7 +242,7 @@ export default class UserManagement extends Component {
 
 
     componentDidMount() {
-        this.setState({paginateData:{...this.state.paginateData,currentPage:1}});
+        this.setState({ paginateData: { ...this.state.paginateData, currentPage: 1 } });
         this.setData(1);
 
     }
@@ -61,7 +265,7 @@ export default class UserManagement extends Component {
         };
 
 
-        const url = Constants.API_URL + "/users/?page=" + page + "&perPage="+this.state.paginateData.itemsCountPerPage;
+        const url = Constants.API_URL + "/users/?page=" + page + "&perPage=" + this.state.paginateData.itemsCountPerPage;
 
 
         if (this.state.q != "") {
@@ -73,7 +277,7 @@ export default class UserManagement extends Component {
                     console.log(result);
                     if (res.status == 'success') {
 
-                        this.setState({ isLoading: false, users: res.data.items, paginateData: {...this.state.paginateData, totalItemsCount:res.data.totalCount} });
+                        this.setState({ isLoading: false, users: res.data.items, paginateData: { ...this.state.paginateData, totalItemsCount: res.data.totalCount } });
                         // console.log("paginate", this.state.paginateData);
 
 
@@ -96,65 +300,74 @@ export default class UserManagement extends Component {
         }
     };
 
-    removeUser(user) {
-        const token = localStorage.getItem('token');
-        var config = {
-            headers: {
-                "api-token": token
-            }
-        };
-        var userId = user.user_id;
-        this.setState({
-            isLoading: true
-        });
-
-
-
-        const url = Constants.API_URL + "/user/delete/" + userId;
-        axios.delete(url, config)
-            .then(result => {
-
-                var res = result.data;
-                console.log(result);
-                if (res.status == 'success') {
-
-                    // var newEmps = this.state.emps.filter(function (item) {
-                    //     return item.employee_id !== empId
-                    // });
-
-
-                    this.setState({ isLoading: false, deleted: true });
-                    this.setData(1);
-                    //alert("Employee has been deleted");
-
-                } else {
-                    this.setState({ redirect: false, authError: true });
+    removeData(obj) {
+        if (window.confirm("Are you sure? There is no redo!")) {
+            const token = localStorage.getItem('token');
+            var config = {
+                headers: {
+                    "access-token": token
                 }
-            })
-            .catch(error => {
-                console.log(error);
-                this.setState({ authError: true, isLoading: false });
+            };
+
+            var id = obj.id;
+            this.setState({
+                isLoading: true
             });
+
+
+
+            const url = Constants.API_URL + "/users/" + id;
+            axios.delete(url, config)
+                .then(result => {
+
+                    var res = result.data;
+                    //console.log(result);
+                    if (res.status == 'success') {
+
+                        // var newEmps = this.state.emps.filter(function (item) {
+                        //     return item.employee_id !== empId
+                        // });
+
+
+                        this.setState({ isLoading: false, deleted: true });
+                        this.setData(1);
+                        //alert("Employee has been deleted");
+
+                    } else {
+                        this.setState({ redirect: false, authError: true });
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+                    this.setState({ authError: true, isLoading: false });
+                });
+        }
 
     }
 
     handlePageChange = (pageNumber) => {
         //alert(pageNumber);
         // console.log("triggered", pageNumber);
-        this.setState({ deleted: false, paginateData:{...this.state.paginateData, currentPage:pageNumber} });
+        this.setState({ deleted: false, paginateData: { ...this.state.paginateData, currentPage: pageNumber } });
         this.setData(pageNumber);
+    }
+
+    setModalStatus = () => {
+        this.setState({ modalStatus: false, paginateData: { ...this.state.paginateData, currentPage: 1 } });
+        this.setData(1);
     }
 
     render() {
         const isLoading = this.state.isLoading;
         const deleted = this.state.deleted;
         const users = this.state.users;
+        const modalStatus = this.state.modalStatus;
         const message = "User has been deleted";
         //console.log("deleted", deleted);
 
         return (
             <div>
-
+                {modalStatus && <ManageModal data={{ 'formFrom': this.state.formFrom, 'formData': this.state.formData }} setModalStatus={this.setModalStatus}></ManageModal>}
 
 
                 <Alert
@@ -189,13 +402,13 @@ export default class UserManagement extends Component {
                                     <div className="row">
                                         <div className="col-md-3"><p>Total Results : {this.state.paginateData.totalItemsCount ? this.state.paginateData.totalItemsCount : 0}</p></div>
                                         <div className="col-md-9 float-right1" >
-                                            <Link className="btn btn-primary float-right" to={'/users/create'} >Add New</Link>
+                                            <button className="btn btn-primary float-right" onClick={() => { this.createData() }}>Add New</button>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="card-body">
 
-                                    <div className="table-responsive" style={{'max-height':'400px','overflow-x1':'scroll'}}>
+                                    <div className="table-responsive sticky-scroll-table">
                                         <table className="table table-bordered" id="dataTable" width="100%"
                                             cellSpacing="0">
                                             <thead>
@@ -205,7 +418,7 @@ export default class UserManagement extends Component {
                                                     <th>Email</th>
                                                     <th>User Type</th>
                                                     <th>Created At</th>
-                                                    
+
                                                     <th>Actions</th>
                                                 </tr>
                                             </thead>
@@ -219,7 +432,7 @@ export default class UserManagement extends Component {
                                                 <th>Action</th>
                                             </tr>
                                             </tfoot>*/}
-                                            <tbody style={{'overflow-y1':'scroll'}}>
+                                            <tbody>
                                                 {
                                                     users && users.map((object, i) =>
                                                         <tr key={"tr-" + i}>
@@ -227,16 +440,18 @@ export default class UserManagement extends Component {
                                                             <td>{object.full_name}</td>
                                                             <td>{object.email}</td>
                                                             <td>{object.role}</td>
-                                                            <td>{object.created_at}</td>
-                                                            
+                                                            <td>{moment(object.created_at, "YYYY-MM-DD HH:mm:ss").format('Do MMM YYYY, h:mm A')}</td>
+
 
                                                             <td>
                                                                 <Link className="btn btn-danger btn-sm m-1"
                                                                     onClick={() => {
-                                                                        this.removeUser(object); //can pass arguments this.btnTapped(foo, bar);          
+                                                                        this.removeData(object); //can pass arguments this.btnTapped(foo, bar);          
                                                                     }} to={'#'}><i className="fa fa-trash"></i></Link>
-                                                                
-                                                                <Link className="btn btn-primary btn-sm m-1" to={'/users/edit/' + object.user_id}><i className="fa fa-edit"></i></Link>
+
+                                                                <Link className="btn btn-primary btn-sm m-1" onClick={() => {
+                                                                    this.updateData(object); //can pass arguments this.btnTapped(foo, bar);          
+                                                                }} to={'#'}><i className="fa fa-edit"></i></Link>
                                                             </td>
                                                         </tr>
                                                     )

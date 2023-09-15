@@ -27,9 +27,9 @@ export default class Header extends Component {
         }
         return (
             <nav className="navbar navbar-expand navbar-dark bg-dark static-top">
-                <TitleComponent title="IQPC Billing Admin "></TitleComponent>
+                <TitleComponent title="REX Admin panel"></TitleComponent>
 
-                <Link to={'/'} className="navbar-brand mr-1">IQPC Billing Admin</Link>
+                <Link to={'/'} className="navbar-brand mr-1">REX Admin</Link>
 
                 <button className="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle">
                     <i className="fas fa-bars"></i>

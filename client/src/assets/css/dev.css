@@ -128,6 +128,15 @@ width: 100%;
     border-radius: 0.25rem;
 }
 
+.sticky-scroll-table{
+  max-height:400px;
+  overflow:auto
+}
+
+.table-responsive.sticky-scroll-table table thead tr th {
+  background: white; position: sticky;top: 0;z-index: 10;
+}
+
 
 
 

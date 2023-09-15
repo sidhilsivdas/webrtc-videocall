@@ -10,11 +10,18 @@ const usersController = {
         try {
             let page = +req.query.page;
             let perPage = +req.query.perPage;
-            page = (page-1) * perPage;
-            
-            const users = await User.findAndCountAll({attributes: ['id','full_name', 'email', 'role', 'created_at'], where:{}, offset:page, limit:perPage});
+            page = (page - 1) * perPage;
 
-            return res.json({ "status": "success", "data": {items: users.rows, totalCount:users.count}});
+            const users = await User.findAndCountAll({
+                attributes: ['id', 'full_name', 'email', 'role', 'created_at'],
+                where: {},
+                order: [
+                    ['id', 'DESC'],
+                    //['name', 'ASC'],
+                ], offset: page, limit: perPage
+            });
+
+            return res.json({ "status": "success", "data": { items: users.rows, totalCount: users.count } });
         } catch (err) {
             logger.error(err);
             console.log(err);
@@ -71,7 +78,7 @@ const usersController = {
     updateUser: async (req, res) => {
         try {
             const { full_name, email, password, role } = req.body;
-            if (!(full_name && email && password && role)) {
+            if (!(full_name && email && role)) {
                 return res.status(422).json({ "status": "error", "message": "Invalid form data" });
             }
             const userData = await User.findOne({ where: { id: req.params.id } });
@@ -84,7 +91,6 @@ const usersController = {
                 return res.status(422).json({ "status": "error", "message": "Email already exist" });
             }
 
-            let encryptedPassword = await bcrypt.hash(password, 10);
             const access_token = jwt.sign(
                 { id: userData.id, email },
                 config.jwt.secret,
@@ -93,14 +99,23 @@ const usersController = {
                 }
             );
 
-            const formData = {
+            let formData = {
                 full_name,
                 email,
-                password: encryptedPassword,
                 access_token,
                 role
 
             };
+            
+            let encryptedPassword;
+            if(password){
+                encryptedPassword = await bcrypt.hash(password, 10);
+                formData.password = encryptedPassword;
+            }
+            
+            
+
+            
 
             const result = await User.update(
                 formData,
