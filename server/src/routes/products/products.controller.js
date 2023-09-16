@@ -6,13 +6,37 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Category = models.category;
 const Product = models.product;
+const Sequelize = require("sequelize");
+
 const productController = {
     getAll: async (req, res) => {
+        
         try {
+            const Op = Sequelize.Op;
+            let page = req.query.page;
+            let perPage = req.query.perPage;
+            let query = req.query.q;
+            if(!(page && perPage)){
+                return res.status(422).json({ "status": "error", "message": "Invalid form data" });
+            }
+            page = (page - 1) * perPage;
 
-            const result = await Product.findAll();
+            let whereObj = {};
+            if(query){
+                whereObj.product_name = { [Op.like]: `%${query}%` };
+            }
 
-            return res.json({ "status": "success", "data": {items: result}});
+            const data = await Product.findAndCountAll({
+                attributes: ['id', 'category_id','product_name', 'created_at'],
+                include:[Category],
+                where: whereObj,
+                order: [
+                    ['id', 'DESC'],
+                    //['name', 'ASC'],
+                ], offset: +page, limit: +perPage
+            });
+
+            return res.json({ "status": "success", "data": { items: data.rows, totalCount: data.count } });
         } catch (err) {
             logger.error(err);
             console.log(err);

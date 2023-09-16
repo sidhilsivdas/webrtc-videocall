@@ -6,16 +6,45 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Category = models.category;
 const Product = models.product;
+const Color = models.color;
 const Stock = models.stock;
 const StockDetails = models.stock_details;
 const PriceDetails = models.price_details;
+const Sequelize = require("sequelize");
 const stockController = {
     getAll: async (req, res) => {
         try {
 
-            const result = await Stock.findAll();
+            const Op = Sequelize.Op;
+            let page = req.query.page;
+            let perPage = req.query.perPage;
+            let query = req.query.q;
+            if(!(page && perPage)){
+                return res.status(422).json({ "status": "error", "message": "Invalid form data" });
+            }
+            page = (page - 1) * perPage;
 
-            return res.json({ "status": "success", "data": { items: result } });
+            let whereObj = {};
+            if(query){
+                //whereObj.product_name = { [Op.like]: `%${query}%` };
+            }
+            //console.log("sdf", req.query.product_id)
+            if(req.query.product_id){
+                //console.log("sdf", req.query.product_id)
+                whereObj.product_id = +req.query.product_id;
+            }
+
+            const data = await Stock.findAndCountAll({
+                attributes: ['id', 'product_id','color_id', 'quantity', 'created_at'],
+                include:[Product, Color],
+                where: whereObj,
+                order: [
+                    ['id', 'DESC'],
+                    //['name', 'ASC'],
+                ], offset: +page, limit: +perPage
+            });
+
+            return res.json({ "status": "success", "data": { items: data.rows, totalCount: data.count } });
         } catch (err) {
             logger.error(err);
             console.log(err);
@@ -36,7 +65,7 @@ const stockController = {
             if (stockData) {
                 cuttentQuantity = stockData.quantity;
                 const result = await Stock.update(
-                    { quantity: (type == "add" ? cuttentQuantity + quantity : cuttentQuantity - quantity) },
+                    { quantity: (type == "add" ? cuttentQuantity + +quantity : cuttentQuantity - +quantity) },
                     { where: { product_id, color_id } }
                 );
                 //return res.status(200).json({ "status": "success", "message": "Stock updated" });
@@ -123,8 +152,7 @@ const stockController = {
             let { stock_id, description, type, quantity_in, quantity_before_update, created_by } = data;
             let quantity_after_update;
 
-            quantity_after_update = (type == "add" ? quantity_before_update + quantity_in : quantity_before_update - quantity_in);
-            console.log({ stock_id, description, type, quantity_in, quantity_before_update, quantity_after_update, created_by })
+            quantity_after_update = (type == "add" ? quantity_before_update + +quantity_in : quantity_before_update - +quantity_in);
             const result = await StockDetails.create({ stock_id, description, type, quantity_in, quantity_before_update, quantity_after_update, created_by });
             return result;
         } catch (err) {
@@ -150,6 +178,46 @@ const stockController = {
             logger.error(err);
             console.log(err);
             return res.status(500).json({ "status": "error" });
+        }
+    },
+
+    getStockHistory: async(req, res) => {
+        try {
+
+            const Op = Sequelize.Op;
+            let page = req.query.page;
+            let perPage = req.query.perPage;
+            let query = req.query.q;
+            const stockId = req.params.id;
+            if(!(page && perPage)){
+                return res.status(422).json({ "status": "error", "message": "Invalid form data" });
+            }
+            page = (page - 1) * perPage;
+
+            let whereObj = {};
+            if(query){
+                whereObj.description = { [Op.like]: `%${query}%` };
+
+            }
+            whereObj.stock_id = +stockId;
+
+            const data = await StockDetails.findAndCountAll({
+                attributes: ['id', 'stock_id','type', 'description', 'created_at'],
+                //include:[Product, Color],
+                where: whereObj,
+                order: [
+                    ['id', 'DESC'],
+                    //['name', 'ASC'],
+                ], offset: +page, limit: +perPage
+            });
+
+            const stockData = await Stock.findOne({ include:[Product, Color],where: { id:+stockId } });
+
+            return res.json({ "status": "success", "data": { items: data.rows, totalCount: data.count, stockData } });
+        } catch (err) {
+            logger.error(err);
+            console.log(err);
+            return res.json({ "status": "error" });
         }
     }
 

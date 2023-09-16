@@ -9,7 +9,12 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            Category.hasMany(models.product, {});
+            Category.hasMany(models.product, {foreignKey:'category_id'});
+
+            Category.beforeDestroy(async (category, options) => {
+                await models.product.destroy({where:{category_id:category.id}});                
+            });
+
         }
     }
 

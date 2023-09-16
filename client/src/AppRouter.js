@@ -7,6 +7,10 @@ import NotFound from "./pages/notfound";
 import Login from "./pages/login";
 import Dashboard from "./pages/dashboard";
 import UserManagement from "./pages/UserManagement";
+import CategoryManagement from "./pages/CategoryManagement";
+import ColorManagement from "./pages/ColorManagement";
+import ProductManagement from "./pages/ProductManagement";
+import StockManagement from "./pages/StockManagement";
 
 
 class AppRouter extends Component {
@@ -25,7 +29,10 @@ class AppRouter extends Component {
                         
                         <Route path='/dashboard' component={Dashboard} />
                         <Route exact path='/user-management' component={UserManagement} />
-                        
+                        <Route exact path='/products/category-management' component={CategoryManagement} />
+                        <Route exact path='/products/color-management' component={ColorManagement} />
+                        <Route exact path='/products/product-management' component={ProductManagement} /> 
+                        <Route exact path='/products/stock-management' component={StockManagement} />                        
 
                 
                        

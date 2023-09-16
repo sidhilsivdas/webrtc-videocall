@@ -10,6 +10,9 @@ module.exports = (sequelize, DataTypes) => {
         static associate(models) {
             // define association here
             Product.belongsTo(models.category, { foreignKey: 'category_id', targetKey: 'id' });
+            // Product.beforeDestroy(async (product, options) => {
+            //     await models.stock.destroy({where:{product_id:product.id}});                
+            // });
         }
     }
 

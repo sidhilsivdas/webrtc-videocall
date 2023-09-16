@@ -4,14 +4,37 @@ const logger = require('../../config/logger');
 const config = require("../../config/config");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const Sequelize = require("sequelize");
 const Color = models.color;
 const colorController = {
     getAll: async (req, res) => {
         try {
 
-            const result = await Color.findAll();
+            const Op = Sequelize.Op;
+            let page = req.query.page;
+            let perPage = req.query.perPage;
+            let query = req.query.q;
+            if(!(page && perPage)){
+                return res.status(422).json({ "status": "error", "message": "Invalid form data" });
+            }
+            page = (page - 1) * perPage;
 
-            return res.json({ "status": "success", "data": {items: result}});
+            let whereObj = {};
+            if(query){
+                whereObj.color_name = { [Op.like]: `%${query}%` };
+            }
+           
+
+            const data = await Color.findAndCountAll({
+                attributes: ['id', 'color_name', 'created_at'],
+                where: whereObj,
+                order: [
+                    ['id', 'DESC'],
+                    //['name', 'ASC'],
+                ], offset: +page, limit: +perPage
+            });
+
+            return res.json({ "status": "success", "data": { items: data.rows, totalCount: data.count } });
         } catch (err) {
             logger.error(err);
             console.log(err);

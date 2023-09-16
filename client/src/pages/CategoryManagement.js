@@ -19,10 +19,8 @@ const ManageModal = (props) => {
 
     let initialFormData = {
         //id:props.id || "",
-        full_name: props.data.formData.full_name || "",
-        email: props.data.formData.email || "",
-        password: "",
-        role: props.data.formData.role || "admin"
+        category_name: props.data.formData.category_name || "",
+        
     }
 
     const [formData, setFormData] = useState(initialFormData);
@@ -38,10 +36,6 @@ const ManageModal = (props) => {
 
         for (const [key, value] of Object.entries(formClone)) {
 
-            if (props.data.formFrom != "create" && key == "password") {
-                continue;
-            }
-
             if (!value) {
                 errorDetails[key] = true
             }
@@ -51,7 +45,7 @@ const ManageModal = (props) => {
             setErrorData({ ...errorDetails });
             return false;
         }
-        console.log(errorDetails);
+        //console.log(errorDetails);
         return true;
     }
 
@@ -72,10 +66,10 @@ const ManageModal = (props) => {
         let method;
         let url;
         if (props.data.formFrom == "create") {
-            url = Constants.API_URL + "/users";
+            url = Constants.API_URL + "/categories";
             method = "POST";
         } else {
-            url = Constants.API_URL + "/users/" + props.data.formFrom;
+            url = Constants.API_URL + "/categories/" + props.data.formFrom;
             method = "PUT";
         }
 
@@ -128,52 +122,15 @@ const ManageModal = (props) => {
                             <div className="form-row">
                                 <div className="col-md-12">
                                     <div className="form-label-group">
-                                        <input name="full_name" value={formData.full_name} onChange={handleInputChange} type="text" className={"form-control " + (errorData.full_name ? 'is-invalid' : '')} autoFocus="autofocus" />
-                                        <label htmlFor="full_name">Enter Name</label>
+                                        <input name="category_name" value={formData.category_name} onChange={handleInputChange} type="text" className={"form-control " + (errorData.category_name ? 'is-invalid' : '')} autoFocus="autofocus" />
+                                        <label htmlFor="category_name">Enter Category Name</label>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="form-group">
-                            <div className="form-row">
-                                <div className="col-md-12">
-                                    <div className="form-label-group">
-                                        <input name="email" value={formData.email} onChange={handleInputChange} type="text" className={"form-control " + (errorData.email ? 'is-invalid' : '')} autoFocus="autofocus" />
-                                        <label htmlFor="email">Enter Email</label>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <div className="form-group">
-                            <div className="form-row">
-                                <div className="col-md-12">
-                                    <div className="form-label-group">
-                                        <input name="password" value={formData.password} onChange={handleInputChange} type="password" className={"form-control " + (errorData.password ? 'is-invalid' : '')} autoFocus="autofocus" />
-                                        <label htmlFor="password">Enter Password</label>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <div className="form-group">
-                            <div className="form-row">
-                                <div className="col-md-12">
-                                    <div className="form-label-group">
-                                        <select id="role" name="role" className={"form-control"} onChange={handleInputChange}>
-                                            <option value="admin" selected={formData.role == 'admin'}>Admin</option>
-                                            <option value="user" selected={formData.role == 'user'}>User</option>
-                                        </select>
-                                        {/* {<label htmlFor="role">Select Role</label>} */}
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
+                               
+                        
 
 
                         <button className="btn btn-primary btn-block" type="submit" disabled={isLoading ? true : false}>Save &nbsp;&nbsp;&nbsp;
@@ -200,7 +157,7 @@ const ManageModal = (props) => {
 }
 
 
-export default class UserManagement extends Component {
+export default class CategoryManagement extends Component {
     constructor() {
         super();
         this.state = {
@@ -225,7 +182,8 @@ export default class UserManagement extends Component {
     }
 
     createData() {
-        this.setState({ modalStatus: true, formFrom: "create", formData:{} });
+        this.setState({ modalStatus: true, formFrom: "create",deleted:false, formData:{} });
+       
 
     }
 
@@ -233,7 +191,7 @@ export default class UserManagement extends Component {
         let newObj = { ...obj };
         delete newObj.id;
         delete newObj.created_at;
-        this.setState({ modalStatus: true, formFrom: obj.id, formData: { ...newObj } });
+        this.setState({ deleted:false,modalStatus: true, formFrom: obj.id, formData: { ...newObj } });
 
     }
 
@@ -265,7 +223,7 @@ export default class UserManagement extends Component {
         };
 
 
-        const url = Constants.API_URL + "/users/?page=" + page + "&perPage=" + this.state.paginateData.itemsCountPerPage;
+        const url = Constants.API_URL + "/categories/?page=" + page + "&perPage=" + this.state.paginateData.itemsCountPerPage;
 
 
         if (this.state.q != "") {
@@ -316,7 +274,7 @@ export default class UserManagement extends Component {
 
 
 
-            const url = Constants.API_URL + "/users/" + id;
+            const url = Constants.API_URL + "/categories/" + id;
             axios.delete(url, config)
                 .then(result => {
 
@@ -374,7 +332,7 @@ export default class UserManagement extends Component {
                     alertData={
                         {
                             "show": deleted,
-                            "message": message,
+                            "message": 'Record Deleted',
                             "title": "Deleted",
                         }
                     } />
@@ -392,7 +350,7 @@ export default class UserManagement extends Component {
                                 <li className="breadcrumb-item">
                                     <Link to={'/dashboard'} >Dashboard</Link>
                                 </li>
-                                <li className="breadcrumb-item active">Users </li>
+                                <li className="breadcrumb-item active">Category </li>
                             </ol>
                         </div>
                         <div className="container-fluid">
@@ -414,9 +372,8 @@ export default class UserManagement extends Component {
                                             <thead>
                                                 <tr>
                                                     <th>#</th>
-                                                    <th>Name</th>
-                                                    <th>Email</th>
-                                                    <th>User Type</th>
+                                                    <th>Category Name</th>
+                                                    
                                                     <th>Created At</th>
 
                                                     <th>Actions</th>
@@ -437,9 +394,8 @@ export default class UserManagement extends Component {
                                                     users && users.map((object, i) =>
                                                         <tr key={"tr-" + i}>
                                                             <td>{object.id}</td>
-                                                            <td>{object.full_name}</td>
-                                                            <td>{object.email}</td>
-                                                            <td>{object.role}</td>
+                                                            <td>{object.category_name}</td>
+                                                            
                                                             <td>{moment(object.created_at, "YYYY-MM-DD HH:mm:ss").format('Do MMM YYYY, h:mm A')}</td>
 
 

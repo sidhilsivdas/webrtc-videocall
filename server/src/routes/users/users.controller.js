@@ -8,8 +8,8 @@ const User = models.user;
 const usersController = {
     getAllUsers: async (req, res) => {
         try {
-            let page = +req.query.page;
-            let perPage = +req.query.perPage;
+            let page = +req.query.page || 0;
+            let perPage = +req.query.perPage || 50;
             page = (page - 1) * perPage;
 
             const users = await User.findAndCountAll({

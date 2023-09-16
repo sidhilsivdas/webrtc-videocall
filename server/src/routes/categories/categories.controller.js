@@ -5,13 +5,28 @@ const config = require("../../config/config");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Category = models.category;
+const Product = models.category;
 const categoryController = {
     getAll: async (req, res) => {
         try {
 
-            const result = await Category.findAll();
+            let page = req.query.page;
+            let perPage = req.query.perPage;
+            if(!(page && perPage)){
+                return res.status(422).json({ "status": "error", "message": "Invalid form data" });
+            }
+            page = (page - 1) * perPage;
 
-            return res.json({ "status": "success", "data": {items: result}});
+            const data = await Category.findAndCountAll({
+                attributes: ['id', 'category_name', 'created_at'],
+                where: {},
+                order: [
+                    ['id', 'DESC'],
+                    //['name', 'ASC'],
+                ], offset: +page, limit: +perPage
+            });
+
+            return res.json({ "status": "success", "data": { items: data.rows, totalCount: data.count } });
         } catch (err) {
             logger.error(err);
             console.log(err);
@@ -87,7 +102,9 @@ const categoryController = {
                 return res.status(404).json({ "status": "error", "message": "User not found" });
             }
 
-            const result = await Category.destroy({
+            
+
+            const result = await dbData.destroy({
                 where: {
                     id
                 }

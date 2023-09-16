@@ -22,6 +22,13 @@ export default class Sidebar extends Component {
             update_billing_hours_master_macro: false,
             update_iq_data_macro: false,
 
+            user_management:false,
+            products:false,
+            category_management:false,
+            color_management:false,
+            product_management:false,
+            stock_management:false
+
 
 
 
@@ -44,22 +51,24 @@ export default class Sidebar extends Component {
             this.setState({ dashboard: true })
         }
 
-        if (url[url.length - 1] == "generate-billing") {
-            this.setState({ generate_billing: true })
+        if (url[url.length - 1] == "user-management") {
+            this.setState({ user_management: true })
         }
 
         if (url[url.length - 1] == "data-import") {
             this.setState({ data_import: true })
         }
 
-        if (url[url.length - 2] == "flat-rate-billing") {
-            this.setState({ flatrate_billing: true })
-            if (url[url.length - 1] == "monthly-data-prep-macro") {
-                this.setState({ monthly_data_prep_macro: true })
-            } else if (url[url.length - 1] == "update-flatrate-billing-macro") {
-                this.setState({ update_flatrate_billing_macro: true })
-            } else if (url[url.length - 1] == "flatrate-billing-complete-macro") {
-                this.setState({ flatrate_billing_complete_macro: true })
+        if (url[url.length - 2] == "products") {
+            this.setState({ products: true })
+            if (url[url.length - 1] == "category-management") {
+                this.setState({ category_management: true })
+            } else if (url[url.length - 1] == "color-management") {
+                this.setState({ color_management: true })
+            } else if (url[url.length - 1] == "product-management") {
+                this.setState({ product_management: true })
+            }else if (url[url.length - 1] == "stock-management") {
+                this.setState({ stock_management: true })
             }
         }
 
@@ -99,28 +108,22 @@ export default class Sidebar extends Component {
         //var hrArr = [];//test changes
         if (userType == "admin") {
 
-            listArr.push(<li key="1-1" className={"nav-item " + (this.state.data_import ? "active" : "")} >
+            listArr.push(<li key="1-1" className={"nav-item " + (this.state.user_management ? "active" : "")} >
                 <Link to={'/user-management'} className="nav-link"><i className="fa fa-user" aria-hidden="true"></i>
                     <span>&nbsp; User Management</span></Link>
             </li>);
 
-            listArr.push(<li key="2" className={"nav-item " + (this.state.generate_billing ? "active" : "")} >
-                <Link to={'/billing/generate-billing'} className="nav-link"><i className="fa fa-align-justify" aria-hidden="true"></i>
-                    <span>&nbsp; Generate Billing</span></Link>
-            </li>);
-
-
-            listArr.push(<li key="3" className={"nav-item dropdown " + (this.state.flatrate_billing ? "active show" : "")}>
+            listArr.push(<li key="3" className={"nav-item dropdown " + (this.state.products ? "active show" : "")}>
                 <Link className="nav-link dropdown-toggle" to={''} id="pagesDropdown" role="button"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 
-                    <i className="fa fa-line-chart" aria-hidden="true"></i><span>&nbsp;Flat Rate Billing</span>
+                    <i className="fa fa-desktop" aria-hidden="true"></i><span>&nbsp;Products</span>
                 </Link>
-                <div className={"dropdown-menu " + (this.state.flatrate_billing ? "show" : "")} aria-labelledby="pagesDropdown">
-                    <Link to={'/billing/flat-rate-billing/monthly-data-prep-macro'} className={"nav-link " + (this.state.monthly_data_prep_macro ? "active" : "")}><h6 className="dropdown-header">Monthly Data Prep</h6></Link>
-                    <Link to={'/billing/flat-rate-billing/update-flatrate-billing-macro'} className={"nav-link " + (this.state.update_flatrate_billing_macro ? "active" : "")}><h6 className="dropdown-header">Update Flatrate Billing</h6></Link>
-                    <Link to={'/billing/flat-rate-billing/flatrate-billing-complete-macro'} className={"nav-link " + (this.state.flatrate_billing_complete_macro ? "active" : "")}><h6 className="dropdown-header">Flatrate Billing Complete</h6></Link>
-
+                <div className={"dropdown-menu " + (this.state.products ? "show" : "")} aria-labelledby="pagesDropdown">
+                    <Link to={'/products/category-management'} className={"nav-link " + (this.state.category_management ? "active" : "")}><h6 className="dropdown-header">Category Management</h6></Link>
+                    <Link to={'/products/color-management'} className={"nav-link " + (this.state.color_management ? "active" : "")}><h6 className="dropdown-header">Color Management</h6></Link>
+                    <Link to={'/products/product-management'} className={"nav-link " + (this.state.product_management ? "active" : "")}><h6 className="dropdown-header">Product Management</h6></Link>
+                    <Link to={'/products/stock-management'} className={"nav-link " + (this.state.stock_management ? "active" : "")}><h6 className="dropdown-header">Stock Management</h6></Link>
                     {/* <div className="dropdown-divider"></div> */}
                 </div>
 

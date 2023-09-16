@@ -134,7 +134,11 @@ width: 100%;
 }
 
 .table-responsive.sticky-scroll-table table thead tr th {
-  background: white; position: sticky;top: 0;z-index: 10;
+  background: white; position: sticky;top: 0;
+}
+
+.react-select-form-controll-error{
+  border: 1px solid #dc3545;
 }
 
 
