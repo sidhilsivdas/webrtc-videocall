@@ -11,6 +11,14 @@ import CategoryManagement from "./pages/CategoryManagement";
 import ColorManagement from "./pages/ColorManagement";
 import ProductManagement from "./pages/ProductManagement";
 import StockManagement from "./pages/StockManagement";
+import CustomerManagement from "./pages/CustomerManagement";
+import PriceManagement from "./pages/PriceManagement";
+import RequestManagement from "./pages/RequestManagement";
+import CreateRequest from "./pages/CreateRequest";
+
+
+
+
 
 
 class AppRouter extends Component {
@@ -32,7 +40,13 @@ class AppRouter extends Component {
                         <Route exact path='/products/category-management' component={CategoryManagement} />
                         <Route exact path='/products/color-management' component={ColorManagement} />
                         <Route exact path='/products/product-management' component={ProductManagement} /> 
-                        <Route exact path='/products/stock-management' component={StockManagement} />                        
+                        <Route exact path='/products/stock-management' component={StockManagement} />
+                        <Route exact path='/products/customer-management' component={CustomerManagement} />   
+                        <Route exact path='/products/price-management' component={PriceManagement} />                        
+                        <Route exact path='/products/stock-management/:stockId/price-management' component={PriceManagement} />                        
+                        <Route exact path='/request-management' component={RequestManagement} /> 
+                        <Route exact path='/create-request' component={CreateRequest} /> 
+                        
 
                 
                        

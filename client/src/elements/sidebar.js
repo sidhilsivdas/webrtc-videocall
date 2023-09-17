@@ -16,19 +16,21 @@ export default class Sidebar extends Component {
             update_flatrate_billing_macro: false,
             flatrate_billing_complete_macro: false,
             //monthly detail billing
-            monthly_detail_billing :false,
+            monthly_detail_billing: false,
             prep_for_data_import_macro: false,
             task_data_update_macro: false,
             update_billing_hours_master_macro: false,
             update_iq_data_macro: false,
 
-            user_management:false,
-            products:false,
-            category_management:false,
-            color_management:false,
-            product_management:false,
-            stock_management:false
-
+            user_management: false,
+            products: false,
+            category_management: false,
+            color_management: false,
+            product_management: false,
+            stock_management: false,
+            customer_management: false,
+            price_management: false,
+            request_management: false
 
 
 
@@ -46,6 +48,7 @@ export default class Sidebar extends Component {
 
         let url = window.location.href
         url = url.split("/")
+        console.log(url)
         //alert(url[url.length-1])
         if (url[url.length - 1] == "dashboard") {
             this.setState({ dashboard: true })
@@ -55,8 +58,8 @@ export default class Sidebar extends Component {
             this.setState({ user_management: true })
         }
 
-        if (url[url.length - 1] == "data-import") {
-            this.setState({ data_import: true })
+        if (url[url.length - 1] == "request-management") {
+            this.setState({ request_management: true })
         }
 
         if (url[url.length - 2] == "products") {
@@ -67,7 +70,19 @@ export default class Sidebar extends Component {
                 this.setState({ color_management: true })
             } else if (url[url.length - 1] == "product-management") {
                 this.setState({ product_management: true })
-            }else if (url[url.length - 1] == "stock-management") {
+            } else if (url[url.length - 1] == "stock-management") {
+                this.setState({ stock_management: true })
+            } else if (url[url.length - 1] == "customer-management") {
+                this.setState({ customer_management: true })
+            } else if (url[url.length - 1] == "price-management") {
+                this.setState({ price_management: true })
+            }
+        }
+
+        //
+        if (url[url.length - 4] == "products") {
+            this.setState({ products: true })
+            if (url[url.length - 3] == "stock-management") {
                 this.setState({ stock_management: true })
             }
         }
@@ -103,54 +118,46 @@ export default class Sidebar extends Component {
         //var decodedClaims = jwt_decode(accessToken, Constants.JWT_SECRET);
         const userType = userData.role;
         var listArr = [];
-        console.log("ddd", userData, userType);
-        console.log("userType", userType);
+        //console.log("ddd", userData, userType);
+        // console.log("userType", userType);
         //var hrArr = [];//test changes
         if (userType == "admin") {
 
-            listArr.push(<li key="1-1" className={"nav-item " + (this.state.user_management ? "active" : "")} >
+            listArr.push(<li key="1-h" className={"nav-item " + (this.state.user_management ? "active" : "")} >
                 <Link to={'/user-management'} className="nav-link"><i className="fa fa-user" aria-hidden="true"></i>
                     <span>&nbsp; User Management</span></Link>
             </li>);
 
-            listArr.push(<li key="3" className={"nav-item dropdown " + (this.state.products ? "active show" : "")}>
+            listArr.push(<li key="3-h" className={"nav-item dropdown " + (this.state.products ? "active show" : "")}>
                 <Link className="nav-link dropdown-toggle" to={''} id="pagesDropdown" role="button"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 
                     <i className="fa fa-desktop" aria-hidden="true"></i><span>&nbsp;Products</span>
                 </Link>
                 <div className={"dropdown-menu " + (this.state.products ? "show" : "")} aria-labelledby="pagesDropdown">
+                    <Link to={'/products/customer-management'} className={"nav-link " + (this.state.customer_management ? "active" : "")}><h6 className="dropdown-header">Customer Management</h6></Link>
                     <Link to={'/products/category-management'} className={"nav-link " + (this.state.category_management ? "active" : "")}><h6 className="dropdown-header">Category Management</h6></Link>
                     <Link to={'/products/color-management'} className={"nav-link " + (this.state.color_management ? "active" : "")}><h6 className="dropdown-header">Color Management</h6></Link>
                     <Link to={'/products/product-management'} className={"nav-link " + (this.state.product_management ? "active" : "")}><h6 className="dropdown-header">Product Management</h6></Link>
                     <Link to={'/products/stock-management'} className={"nav-link " + (this.state.stock_management ? "active" : "")}><h6 className="dropdown-header">Stock Management</h6></Link>
+                    <Link to={'/products/price-management'} className={"nav-link " + (this.state.price_management ? "active" : "")}><h6 className="dropdown-header">Price Management</h6></Link>
+
                     {/* <div className="dropdown-divider"></div> */}
                 </div>
+
 
 
             </li>);
 
-            listArr.push(<li key="4" className={"nav-item dropdown " + (this.state.monthly_detail_billing ? "active show" : "")}>
-                <Link className="nav-link dropdown-toggle" to={''} id="pagesDropdown" role="button"
-                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-
-                    <i className="fa fa-calendar" aria-hidden="true"></i><span>&nbsp;Monthly Detail Billing</span>
-                </Link>
-                <div className={"dropdown-menu " + (this.state.monthly_detail_billing ? "show" : "")} aria-labelledby="pagesDropdown">
-                    <Link to={'/billing/monthly-detail-billing/task-data-update-macro'} className={"nav-link " + (this.state.task_data_update_macro ? "active" : "")}><h6 className="dropdown-header">Task Data Update</h6></Link>
-                    <Link to={'/billing/monthly-detail-billing/update-billing-hours-master-macro'} className={"nav-link " + (this.state.update_billing_hours_master_macro ? "active" : "")}><h6 className="dropdown-header">Update Billing Hours Master</h6></Link>
-                    <Link to={'/billing/monthly-detail-billing/update-iq-data-macro'} className={"nav-link " + (this.state.update_iq_data_macro ? "active" : "")}><h6 className="dropdown-header">Update IQ Data</h6></Link>
-
-                    {/* <div className="dropdown-divider"></div> */}
-                </div>
-
-
+            listArr.push(<li key="1-1" className={"nav-item " + (this.state.request_management ? "active" : "")} >
+                <Link to={'/request-management'} className="nav-link"><i className="fa fa-money-bill" aria-hidden="true"></i>
+                    <span>&nbsp; Request Management</span></Link>
             </li>);
 
 
 
         } else if (userType == "old-admin") {
-            listArr.push(<li key="1" className="nav-item dropdown">
+            listArr.push(<li key={`side-li-3`} className="nav-item dropdown">
                 <Link className="nav-link dropdown-toggle" to={''} id="pagesDropdown" role="button"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i className="fa-light fa-chart-tree-map"></i>
@@ -170,7 +177,7 @@ export default class Sidebar extends Component {
 
 
         } else {
-            listArr.push(<li key="1" className="nav-item dropdown">
+            listArr.push(<li key={`side-li-2`} className="nav-item dropdown">
                 <Link className="nav-link dropdown-toggle" to={''} id="pagesDropdown" role="button"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i className="fas fa-fw fa-folder"></i>
@@ -187,7 +194,7 @@ export default class Sidebar extends Component {
         return (
             <div id="wrapper">
                 <ul className="sidebar navbar-nav">
-                    <li className={"nav-item " + (this.state.dashboard ? "active" : "")}>
+                    <li key={`side-li-1`} className={"nav-item " + (this.state.dashboard ? "active" : "")}>
                         <Link to={'/dashboard'} className="nav-link"><i className="fas fa-fw fa-tachometer-alt"></i>
                             <span>&nbsp;Dashboard</span></Link>
                     </li>

@@ -52,6 +52,34 @@ const stockController = {
         }
 
     },
+    getOne: async (req, res) => {
+        try {
+
+            const Op = Sequelize.Op;
+            let id = req.params.id;
+            if(!id){
+                return res.status(422).json({ "status": "error", "message": "Invalid form data" });
+            }
+            
+
+            let whereObj = {};
+            
+            
+
+            const data = await Stock.findOne({
+                attributes: ['id', 'product_id','color_id', 'quantity', 'created_at'],
+                include:[Product, Color],
+                where: whereObj
+                
+            });
+
+            return res.json({ "status": "success", "data": data });
+        } catch (err) {
+            logger.error(err);
+            console.log(err);
+            return res.json({ "status": "error" });
+        }
+    },
     create: async (req, res) => {
         try {
             let cuttentQuantity = 0;
@@ -168,10 +196,10 @@ const stockController = {
             if (!(stock_id && quantity_start && quantity_end && price)) {
                 return res.status(422).json({ "status": "error", "message": "Invalid form data" });
             }
-            let priceData = PriceDetails.findOne({ where: { stock_id, quantity_start, quantity_end, price } });
-            if(priceData){
-                return res.status(422).json({ "status": "error", "message": "Range already exists" });
-            }
+            // let priceData = PriceDetails.findOne({ where: { stock_id, quantity_start, quantity_end, price } });
+            // if(priceData){
+            //     return res.status(422).json({ "status": "error", "message": "Range already exists" });
+            // }
             let result = await PriceDetails.create({ stock_id, quantity_start, quantity_end, price, created_by: req.user.id });
             return res.json({ status: "success", "message": "Price Details Added" });
         } catch (err) {
@@ -202,7 +230,7 @@ const stockController = {
             whereObj.stock_id = +stockId;
 
             const data = await StockDetails.findAndCountAll({
-                attributes: ['id', 'stock_id','type', 'description', 'created_at'],
+                attributes: ['id', 'stock_id','type', 'description', 'quantity_in','quantity_before_update','quantity_after_update','created_at'],
                 //include:[Product, Color],
                 where: whereObj,
                 order: [
@@ -214,6 +242,46 @@ const stockController = {
             const stockData = await Stock.findOne({ include:[Product, Color],where: { id:+stockId } });
 
             return res.json({ "status": "success", "data": { items: data.rows, totalCount: data.count, stockData } });
+        } catch (err) {
+            logger.error(err);
+            console.log(err);
+            return res.json({ "status": "error" });
+        }
+    },
+
+    getPriceRangeDetails: async(req, res) => {
+        try {
+
+            const Op = Sequelize.Op;
+            let page = req.query.page;
+            let perPage = req.query.perPage;
+            let query = req.query.q;
+            const stockId = req.params.stockId;
+            if(!(page && perPage)){
+                return res.status(422).json({ "status": "error", "message": "Invalid form data" });
+            }
+            page = (page - 1) * perPage;
+
+            let whereObj = {};
+            if(query){
+                //whereObj.description = { [Op.like]: `%${query}%` };
+
+            }
+            whereObj.stock_id = +stockId;
+
+            const data = await PriceDetails.findAndCountAll({
+                attributes: ['id', 'quantity_start','quantity_end', 'price', 'created_at'],
+                //include:[Product, Color],
+                where: whereObj,
+                order: [
+                    ['id', 'DESC'],
+                    //['name', 'ASC'],
+                ], offset: +page, limit: +perPage
+            });
+
+            //const stockData = await PriceDetails.findOne({ include:[Product, Color],where: { id:+stockId } });
+
+            return res.json({ "status": "success", "data": { items: data.rows, totalCount: data.count } });
         } catch (err) {
             logger.error(err);
             console.log(err);

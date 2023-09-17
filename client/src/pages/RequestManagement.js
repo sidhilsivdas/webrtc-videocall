@@ -435,7 +435,7 @@ const ManageModal = (props) => {
 }
 
 
-export default class StockManagement extends Component {
+export default class RequestManagement extends Component {
     constructor() {
         super();
         this.state = {
@@ -671,9 +671,7 @@ export default class StockManagement extends Component {
         return (
             <div>
 
-                {modalStatus && <ManageModal data={{ 'formFrom': this.state.formFrom, 'formData': this.state.formData, categories: this.state.categories }} setModalStatus={this.setModalStatus}></ManageModal>}
-                {viewModalStatus && <ViewModal data={{ viewId: this.state.viewId }} setViewModalStatus={this.setViewModalStatus}></ViewModal>}
-
+                
                 <Alert
                     alertData={
                         {
@@ -696,7 +694,7 @@ export default class StockManagement extends Component {
                                 <li className="breadcrumb-item">
                                     <Link to={'/dashboard'} >Dashboard</Link>
                                 </li>
-                                <li className="breadcrumb-item active">Stocks </li>
+                                <li className="breadcrumb-item active">Requests </li>
                             </ol>
                         </div>
                         <div className="container-fluid">
@@ -721,7 +719,7 @@ export default class StockManagement extends Component {
                                                     />
                                                 </div>
                                                 <div className="col-md-3 float-right1" >
-                                                    <button className="btn btn-primary float-right" onClick={() => { this.createData() }}>Add/Update</button>
+                                                <Link className="btn btn-primary float-right" to="/create-request">Create Request</Link>
                                                 </div>
                                             </div>
                                         </div>
@@ -733,10 +731,7 @@ export default class StockManagement extends Component {
                                                     <thead>
                                                         <tr>
                                                             <th>#</th>
-                                                            <th>Product Name</th>
-                                                            <th>Color</th>
-                                                            <th>Quantity</th>
-
+                                                            <th>Customer Name</th>
                                                             <th>Created At</th>
 
                                                             <th>Actions</th>
@@ -766,11 +761,9 @@ export default class StockManagement extends Component {
 
 
                                                                     <td>
-                                                                        <Link className="btn btn-warning btn-sm m-1" onClick={() => {
-                                                                            this.viewStockDetails(object);
-                                                                        }} to={'#'}><i className="fa fa-eye"></i></Link>
+                                                                       
 
-                                                                        <Link className="btn btn-success btn-sm m-1" to={`/products/stock-management/${object.id}/price-management`}><i className="fa fa-money"></i></Link>
+                                                                        <Link className="btn btn-success btn-sm m-1" to={`/edit-request/${object.id}`}><i className="fa fa-edit"></i></Link>
 
                                                                     </td>
                                                                 </tr>

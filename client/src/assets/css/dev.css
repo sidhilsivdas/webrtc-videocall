@@ -141,6 +141,11 @@ width: 100%;
   border: 1px solid #dc3545;
 }
 
+.request-cont-td{
+  
+  max-height:10px;
+}
+
 
 
 
