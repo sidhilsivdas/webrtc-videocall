@@ -36,7 +36,13 @@ const requestController = {
             let request = await Request.create({customer_id, created_by:req.user.id});
             let insertArr = [];
             requests.forEach(function (item, index) {
-                insertArr.push({...item, request_id:request.id, created_by:req.user.id});
+                insertArr.push({...item, 
+                                request_id:request.id, 
+                                stock_id: +item.stock_id,
+                                request_item_id: +item.id,
+                                quantity: +item.quantity,
+                                price: +item.price,
+                                created_by:req.user.id});
             });
 
             let insertRes = await RequestDetails.bulkCreate(insertArr);

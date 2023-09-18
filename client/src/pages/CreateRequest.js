@@ -15,6 +15,8 @@ import { useState } from 'react';
 import moment from 'moment';
 import { useParams } from 'react-router';
 import RequestContainer from "../elements/RequestContainer";
+import AsyncSelect from "react-select/async";
+import makeAnimated from "react-select/animated";
 
 
 export default class CreateRequest extends Component {
@@ -36,27 +38,77 @@ export default class CreateRequest extends Component {
             modalStatus: false,
             formFrom: "create",
             formData: {},
-            requestItems: [],
-            curRow: 1
+            requestItems: [{ id: 1, stock_id: 0, stock_value: "Select - Stock", stock_quantity: 0,quantity: "", price: "" }],
+            curRow: 0,
+            query: "",
+            totalData: {
+                quantity: 0,
+                price: 0
+            },
+            selected_customer_id: "",
+            quantity_exceed_error:false
 
         };
         //This binding removeTag is necessary to make `this` work in the callback
         //this.removeEmployee = this.removeClient.bind(this);
         //this.onFormSubmit = this.onFormSubmit.bind(this)
+        this.selectorRef = React.createRef(null);
     }
 
     addItem() {
-        let hCount = this.state.curRow;
-        let item = { id:hCount,quantity: "", price: "" };
-        let requestItemArr = [...this.state.requestItems];
-        requestItemArr.unshift({ ...item });
-       // this.setState({ requestItems: [...requestItemArr], curRow: hCount + 1 });
+
+        if (this.validateForm()) {
+
+            let requestItemArr = [...this.state.requestItems];
+            let hCount = requestItemArr.length + 1;
+            let item = { id: hCount, stock_id: 0, stock_value: "Select - Stock",stock_quantity:0, quantity: "", price: "" };
+            requestItemArr.unshift({ ...item });
+            // this.setState({ requestItems: [...requestItemArr], curRow: hCount + 1 });
+
+            this.setState(prevState => ({
+                requestItems: [...requestItemArr],
+                curRow: hCount
+
+            }), () => {
+                this.calculateTotal();
+            })
+
+            //console.log("kkk",this.selectorRef.current)
+
+            if (this.selectorRef.current)
+                this.selectorRef.current.focus();
+
+
+
+        } else {
+            alert("Please fill all the for values")
+        }
+
+    }
+
+    calculateTotal = () => {
+        //console.log(`calTotal`);
+        let requestItems = [...this.state.requestItems];
+        let totalDataObj = {
+            quantity: 0,
+            price: 0
+        }
+        //console.log(requestItems, requestItems.length);
+        if (requestItems.length != 0) {
+
+            for (let i = 0; i < requestItems.length; i++) {
+                //console.log(totalDataObj[i].quantity)
+                totalDataObj.quantity += requestItems[i].quantity ? (+requestItems[i].quantity) : 0;
+                totalDataObj.price += requestItems[i].price ? (+requestItems[i].price) : 0;
+
+            }
+        }
 
         this.setState(prevState => ({
-            requestItems: [...requestItemArr],
-            curRow:hCount+1
+            totalData: { ...totalDataObj }
 
         }))
+
 
     }
 
@@ -68,9 +120,29 @@ export default class CreateRequest extends Component {
 
     }
 
-    removeData(obj) {
-        
-        
+    removeItem(index) {
+
+        let requestItemArr = [...this.state.requestItems];
+        requestItemArr.splice(index, 1);
+        let hCount = requestItemArr.length + 1;
+
+        //requestItemArr.
+        const newObj = requestItemArr.map(item => {
+            hCount -= 1
+            return { ...item, id: hCount }
+        }
+
+        );
+
+        this.setState(prevState => ({
+            requestItems: [...newObj],
+            curRow: hCount
+
+        }), () => {
+            this.calculateTotal();
+        })
+
+        //this.calculateTotal();
 
     }
 
@@ -90,11 +162,130 @@ export default class CreateRequest extends Component {
     handleInputChange = (e, index) => {
         const { name, value } = e.target;
         let requestItemsArr = this.state.requestItems;
-        requestItemsArr[index][name] = value;
+        let quantity_exceed_error = false;
+        let newVal = value;
+
+        if(name == "quantity"){
+            
+            let stock_quantity = +requestItemsArr[index].stock_quantity;
+            let current_quantity = stock_quantity - (+value);
+           
+            //console.log(typeof stock_quantity, typeof current_quantity, current_quantity, stock_quantity)
+            if(current_quantity < 0){
+                quantity_exceed_error = true;
+                newVal = 0
+            }else{
+                quantity_exceed_error = false;
+                
+            }
+        }
+        requestItemsArr[index][name] = newVal;
+        //requestItemsArr[index][stock_quantity] = current_quantity
+
         //console.log(requestItemsArr);
         this.setState(prevState => ({
-            requestItems: [...requestItemsArr]
-        }))
+            requestItems: [...requestItemsArr],
+            quantity_exceed_error
+        }), () => {
+            this.calculateTotal();
+        })
+    }
+
+
+    validateForm = () => {
+        let requestItemsArr = [...this.state.requestItems];
+        for (let i = 0; i < requestItemsArr.length; i++) {
+            if (!(requestItemsArr[i].quantity && requestItemsArr[i].price && requestItemsArr[i].stock_id)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    submitForm = () => {
+        let selected_customer_id = this.state.selected_customer_id;
+        if (!(this.validateForm() && selected_customer_id)) {
+            alert("Enter all the values");
+        } else {
+            let formData = {
+
+            }
+            formData.customer_id = selected_customer_id;
+            formData.requests = { ...this.state.requestItems }
+            console.log(formData)
+        }
+
+
+    }
+
+
+    setStockData = (itemId, obj) => {
+        //alert(index)
+
+        let requestItemsArr = [...this.state.requestItems];
+        //alert(itemId)
+        let itemObjArr = requestItemsArr.filter((item) => {
+            if (item.id === itemId) {
+                item.stock_id = obj.id;
+                item.stock_value = obj.product.product_name + " - " + obj.color.color_name;
+                item.stock_quantity = +obj.quantity
+            }
+            return item;
+        });
+
+
+        this.setState(prevState => ({
+            requestItems: [...itemObjArr]
+        }), () => {
+            //this.calculateTotal();
+        })
+
+    }
+
+    loadOptions = (coll) => {
+        const token = localStorage.getItem('token');
+        var config = {
+            headers: {
+                "access-token": token
+            }
+        };
+
+        const url = Constants.API_URL + "/" + coll + "/?page=1&perPage=50&q=" + this.state.query;
+        return axios.get(url, config)
+            .then(result => {
+
+                var res = result.data;
+                return res.data.items;
+            })
+            .catch(error => {
+                console.log(error);
+                //this.setState({ authError: true, isLoading: false });
+            });
+    }
+
+    loadAsyncOptions = async (coll) => {
+        try {
+            const token = localStorage.getItem('token');
+            var config = {
+                headers: {
+                    "access-token": token
+                }
+            };
+            const url = Constants.API_URL + "/" + coll + "/?page=1&perPage=50&q=" + this.state.query;
+            let result = await axios.get(url, config);
+
+            var res = result.data;
+            return res.data.items;
+
+
+
+        } catch (err) {
+
+        }
+    }
+
+    setQuery = (value) => {
+        this.setState({ query: value })
     }
 
 
@@ -102,6 +293,7 @@ export default class CreateRequest extends Component {
     render() {
         const isLoading = this.state.isLoading;
         let requestItems = this.state.requestItems;
+        let quantity_exceed_error = this.state.quantity_exceed_error;
         return (
             <div>
 
@@ -132,34 +324,57 @@ export default class CreateRequest extends Component {
                                     <div className="row">
                                         <div className="col-md-3"><p>Total Results : {this.state.paginateData.totalItemsCount ? this.state.paginateData.totalItemsCount : 0}</p></div>
                                         <div className='col-md-6'>
-
+                                            {`Total Quantity: ${this.state.totalData.quantity} | Total Price: ${this.state.totalData.price}`}
                                         </div>
 
                                         <div className="col-md-3 float-right1" >
-                                            <Link className="btn btn-success float-right" to="#" onClick={
-                                                () => this.addItem()
-                                            }>+</Link>
+                                            
+                                             <button className='btn btn-primary float-right' onClick={() => {
+                                                this.submitForm()
+                                            }}>Create</button>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="card-body">
+                                    <div className='row'>
+                                        <div className='col-md-6'>
+                                            <AsyncSelect
+                                                //cacheOptions
+                                                //isMulti
+                                                //components={animatedComponents}
+                                                getOptionLabel={(e) => e.full_name + " | " + e.email}
+                                                getOptionValue={(e) => e.id}
+                                                loadOptions={
+                                                    () => this.loadOptions('customers')
+                                                }
+                                                onInputChange={(value) => this.setQuery(value)}
+                                                onChange={(value) => this.setState({ selected_customer_id: value.id })}
+                                                className={'mb-2'}
+                                                placeholder={'Select Customer'}
+                                            />
+                                        </div>
+                                        <div className='col-md-6'>
+                                        <Link className="btn btn-success float-right" to="#" onClick={
+                                                () => this.addItem()
+                                            }>+</Link>
+                                        </div>
+                                        <div className='col-md-12'>
+                                            <div className="table-responsive1">
+                                                <table className="table table-bordered" id="dataTable" width="100%"
+                                                    cellSpacing="0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>Stock  {quantity_exceed_error && <span className='badge badge-danger float-right'>Not enough stock quantity</span>}</th>
+                                                            <th>Quantity</th>
+                                                            <th>Price</th>
+                                                            <th>X</th>
 
-                                    <div className="table-responsive">
-                                        <table className="table table-bordered" id="dataTable" width="100%"
-                                            cellSpacing="0">
-                                            <thead>
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>Stock</th>
-                                                    <th>Quantity</th>
-                                                    <th>Price</th>
-                                                    <th>X</th>
 
 
-
-                                                </tr>
-                                            </thead>
-                                            {/*<tfoot>
+                                                        </tr>
+                                                    </thead>
+                                                    {/*<tfoot>
                                             <tr>
                                                 <th>Job ID</th>
                                                 <th>Title</th>
@@ -169,48 +384,110 @@ export default class CreateRequest extends Component {
                                                 <th>Action</th>
                                             </tr>
                                             </tfoot>*/}
-                                            <tbody>
-                                                {
-                                                    requestItems && [...requestItems].map((item, index) => {
-                                                        //return <RequestContainer key={`re-cont-${index}`} data={{item:{...item}}}/>
-                                                        return (<tr key={`req-cont-tr1-${index}`}>
-                                                            <td>
-                                                                {item.id}
-                                                            </td>
-                                                            <td>
-                                                               
-                                                            </td>
-                                                            <td className='request-cont-td'>
-                                                                <input name="quantity" value={this.state.requestItems[index].quantity} onChange={(e)=> {this.handleInputChange(e, index)}} type="number" className={"form-control"} />
-                                                            </td>
+                                                    <tbody>
+                                                        {
+                                                            requestItems && [...requestItems].map((item, index) => {
+                                                                let spOpt = item.stock_value.split(" - ");
+                                                                let defaultOpt = {
+                                                                    product: { product_name: spOpt[0] },
+                                                                    color: { color_name: spOpt[1] },
+                                                                    quantity:item.quantity,
+                                                                    stock_quantity: item.stock_quantity,
+                                                                    cur_stock_quantity:(item.stock_quantity - item.quantity)
+                                                                };
+                                                                //return <RequestContainer key={`re-cont-${index}`} data={{item:{...item}}}/>
+                                                                return (<tr key={`req-cont-tr1-${index}`}>
+                                                                    <td>
+                                                                        {item.id}
+                                                                    </td>
 
-                                                            <td className='request-cont-td'>
-                                                                <input onKeyUp={(e) => {
-                                                                    if(e.key === 'Enter'){
-                                                                      this.addItem()
-                                                                    }
-                                                                }} name="price" value={this.state.requestItems[index].price} onChange={(e)=> {this.handleInputChange(e, index)}} type="number" className={"form-control"} />
-                                                            </td>
+                                                                    <td className='request-cont-td' style={{ 'width': '50%' }}>
+                                                                        <AsyncSelect
+                                                                            value={{ ...defaultOpt }}
+                                                                            //cacheOptions
+                                                                            autoFocus={(requestItems.length === item.id) ? true : false}
+                                                                            ref={item.id == requestItems.length ? this.selectorRef : undefined}
+                                                                            //isMulti
+                                                                            //components={animatedComponents}
+                                                                            getOptionLabel={(e) => {
+                                                                                let stock_q;
+                                                                                let quantity;
+                                                                                let cur_stock_quantity;
+                                                                                if(e.stock_quantity){
+                                                                                    stock_q = e.stock_quantity;
+                                                                                    quantity = e.quantity?e.quantity:0;
+                                                                                    cur_stock_quantity = e.cur_stock_quantity;
+                                                                                }else{
+                                                                                    stock_q = e.quantity;
+                                                                                    quantity = 0;
+                                                                                    cur_stock_quantity = e.quantity ? e.quantity:0;
+                                                                                }
+                                                                                
+                                                                                if (e.product.product_name != "Select") {
+                                                                                    return `${e.product.product_name} - ${e.color.color_name} | (${stock_q} | ${quantity}) - ${cur_stock_quantity}`;
+                                                                                } else {
+                                                                                    return `Select Stock`;
+                                                                                }
 
-                                                            <td className='request-cont-td'>
-                                                                <Link to={"#"} className={`btn btn-sm btn-danger`} onClick={() => {
+                                                                            }}
+                                                                            getOptionValue={(e) => e.id}
+                                                                            loadOptions={() => 
+                                                                                 {
+                                                                                    return this.loadAsyncOptions("stocks").then((res) => {
+                                                                                        return res
+                                                                                          .filter((r) => {
+                                                                                            let stockIds = this.state.requestItems.map(item => item.stock_id);
+                                                                                            return stockIds.indexOf(r.id) == -1
+                                                                                        });
+                                                                                          
+                                                                                      });
+                                                                                 }
+                                                                            }
+                                                                            onInputChange={(value) => this.setQuery(value)}
+                                                                            onChange={(value) => this.setStockData(item.id, value)}
+                                                                            className={''}
+                                                                        //placeholder={'Select Stocks'}
+                                                                        />
+                                                                    </td>
 
-                                                                }}>X</Link>
-                                                            </td>
 
-                                                        </tr>)
+                                                                    <td className='request-cont-td'>
+                                                                        <input name="quantity" value={this.state.requestItems[index].quantity} onChange={(e) => { this.handleInputChange(e, index) }} type="number" className={"form-control"} />
+                                                                    </td>
 
-                                                    })
-                                                }
+                                                                    <td className='request-cont-td'>
+                                                                        <input onKeyUp={(e) => {
+                                                                            e.preventDefault()
+                                                                            if (e.key === 'Enter') {
+                                                                                this.addItem()
+                                                                            }
+                                                                        }}
+                                                                            name="price" value={this.state.requestItems[index].price} onChange={(e) => { this.handleInputChange(e, index) }} type="number" className={"form-control"} />
+                                                                    </td>
+
+                                                                    <td className='request-cont-td'>
+                                                                        <Link to={"#"} className={`btn btn-sm btn-danger`} onClick={() => {
+                                                                            this.removeItem(index)
+                                                                        }}>X</Link>
+                                                                    </td>
+
+                                                                </tr>)
+
+                                                            })
+                                                        }
 
 
-                                            </tbody>
-                                        </table>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div className="card-footer small text-muted">
-
+                                    <button className='btn btn-primary float-right' onClick={() => {
+                                        this.submitForm()
+                                    }}>Create</button>
                                 </div>
                             </div>
                         </div>

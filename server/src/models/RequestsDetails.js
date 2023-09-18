@@ -26,6 +26,10 @@ module.exports = (sequelize, DataTypes) => {
                 type:DataTypes.BIGINT,          
                 allowNull:false
             },
+            request_item_id:{
+                type:DataTypes.INTEGER,          
+                allowNull:false
+            },
             stock_id:{
                 type:DataTypes.INTEGER,          
                 allowNull:false

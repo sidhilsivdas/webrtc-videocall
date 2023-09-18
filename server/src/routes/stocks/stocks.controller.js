@@ -25,8 +25,10 @@ const stockController = {
             page = (page - 1) * perPage;
 
             let whereObj = {};
+            let whereProdObj = {}
+             
             if(query){
-                //whereObj.product_name = { [Op.like]: `%${query}%` };
+                whereProdObj.product_name = { [Op.like]: `%${query}%` };
             }
             //console.log("sdf", req.query.product_id)
             if(req.query.product_id){
@@ -34,9 +36,16 @@ const stockController = {
                 whereObj.product_id = +req.query.product_id;
             }
 
+              
+            
+
             const data = await Stock.findAndCountAll({
                 attributes: ['id', 'product_id','color_id', 'quantity', 'created_at'],
-                include:[Product, Color],
+                include:[{
+                    model: Product,
+                    as: 'product',
+                    where: whereProdObj //
+                  }, Color],
                 where: whereObj,
                 order: [
                     ['id', 'DESC'],
