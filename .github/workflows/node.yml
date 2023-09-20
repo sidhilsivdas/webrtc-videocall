@@ -1,5 +1,5 @@
 name: REX invm CI
-  on:
+on:
    push:
      branches: [ master ]
 jobs: 
