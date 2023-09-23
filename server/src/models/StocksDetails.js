@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
         static associate(models) {
             // define association here
             StockDetails.belongsTo(models.stock, { foreignKey: 'stock_id', targetKey: 'id' });
+            StockDetails.belongsTo(models.customer, { foreignKey: 'customer_id', targetKey: 'id' });
         }
     }
 
@@ -25,11 +26,16 @@ module.exports = (sequelize, DataTypes) => {
                 type:DataTypes.INTEGER,          
                 allowNull:false
             },
+            customer_id:{
+                type:DataTypes.INTEGER,          
+                allowNull:true
+            },
             description: DataTypes.STRING(500),
             type:DataTypes.STRING(10),
             quantity_in:DataTypes.INTEGER,
             quantity_before_update:DataTypes.INTEGER,
             quantity_after_update:DataTypes.INTEGER,
+            stock_quantity: DataTypes.INTEGER,
             created_by: DataTypes.INTEGER,
             created_at:{ 
                 type: DataTypes.DATE,

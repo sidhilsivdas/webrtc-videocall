@@ -46,7 +46,8 @@ export default class CreateRequest extends Component {
                 price: 0
             },
             selected_customer_id: "",
-            quantity_exceed_error:false
+            quantity_exceed_error:false,
+            toRequests:false
 
         };
         //This binding removeTag is necessary to make `this` work in the callback
@@ -207,12 +208,57 @@ export default class CreateRequest extends Component {
         if (!(this.validateForm() && selected_customer_id)) {
             alert("Enter all the values");
         } else {
-            let formData = {
-
-            }
+            let formData = {};
             formData.customer_id = selected_customer_id;
-            formData.requests = { ...this.state.requestItems }
-            console.log(formData)
+            formData.requests = [ ...this.state.requestItems ]
+            //console.log(formData)
+            this.setState({isLoading:true});
+            const token = localStorage.getItem('token');
+    
+            const headers = {
+                "access-token": token
+            }
+    
+            let method = "POST";
+            let url = Constants.API_URL + "/requests";
+           
+    
+            if (true) {
+                //console.log("jjjjjjj")
+                axios({
+                    method: method,
+                    url: url,
+                    data: formData,
+                    headers
+                }).then(result => {
+                    //setErrorData({});
+                    this.setState({isLoading:false});
+                    if (result.data.status) {
+                        //setIsLoading(false);
+                        //props.setModalStatus();
+                        alert("Record Saved Successfully");
+                        this.setState({toRequests:true})
+                        //this.connectParent();
+                        
+    
+                    }
+                })
+                    .catch(error => {
+                        if (error.response) {
+                            //props.setModalStatus();
+                            this.setState({isLoading:false});
+                            alert(error.response.data.message ? error.response.data.message : 'Server error');
+                            //console.log(error.response.headers);
+                        }
+                    });
+    
+            } else {
+                this.setState({isLoading:false});
+            }
+    
+            
+
+
         }
 
 
@@ -294,6 +340,9 @@ export default class CreateRequest extends Component {
         const isLoading = this.state.isLoading;
         let requestItems = this.state.requestItems;
         let quantity_exceed_error = this.state.quantity_exceed_error;
+        if (this.state.toRequests === true) {
+            return <Redirect to='/request-management' />
+        }
         return (
             <div>
 
@@ -342,7 +391,7 @@ export default class CreateRequest extends Component {
                                                 //cacheOptions
                                                 //isMulti
                                                 //components={animatedComponents}
-                                                getOptionLabel={(e) => e.full_name + " | " + e.email}
+                                                getOptionLabel={(e) => e.full_name + " | " + e.shop_name}
                                                 getOptionValue={(e) => e.id}
                                                 loadOptions={
                                                     () => this.loadOptions('customers')

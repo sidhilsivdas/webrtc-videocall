@@ -25,7 +25,7 @@ const customerController = {
             }
 
             const data = await Customer.findAndCountAll({
-                attributes: ['id', 'full_name','email', 'address', 'phone','created_at'],
+                attributes: ['id', 'full_name','shop_name','email', 'address', 'phone','created_at'],
                // include:[Category],
                 where: whereObj,
                 order: [
@@ -46,8 +46,8 @@ const customerController = {
     create: async (req, res) => {
         try {
 
-            const { full_name, email, address, phone } = req.body;
-            if (!(full_name && email && address && phone)) {
+            const { full_name, shop_name } = req.body;
+            if (!(full_name && shop_name)) {
                 return res.status(422).json({ "status": "error", "message": "Invalid form data" });
             }
             const customerData = await Customer.findOne({ where: { full_name } });
@@ -55,9 +55,9 @@ const customerController = {
                 return res.status(422).json({ "status": "error", "message": "Customer already exists" });
             }
             
-            const customer = await Customer.create({ full_name, email, address, phone, created_by:req.user.id });
+            const customer = await Customer.create({ full_name, shop_name, email:"", address:"", phone:"", created_by:req.user.id });
 
-            return res.json({ status: "success", "message": "Created", data: { id: customer.id, full_name, email, address, phone } });
+            return res.json({ status: "success", "message": "Created", data: { id: customer.id, full_name, shop_name } });
         } catch (err) {
             logger.error(err);
             console.log(err);
@@ -69,8 +69,8 @@ const customerController = {
     update: async (req, res) => {
         try {
             const id = req.params.id;
-            const { full_name, email, address, phone } = req.body;
-            if (!(full_name && email && address && phone)) {
+            const { full_name, shop_name } = req.body;
+            if (!(full_name && shop_name)) {
                 return res.status(422).json({ "status": "error", "message": "Invalid form data" });
             }
             const dbData = await Customer.findOne({ where: { full_name } });
@@ -82,11 +82,11 @@ const customerController = {
            
 
             const result = await Customer.update(
-                { full_name, email, address, phone },
+                { full_name, shop_name, address:"", phone:"" },
                 { where: { id: req.params.id } }
             )
 
-            return res.json({ status: "success", "message": "Customer Updated", data: { id: result.id, full_name, email, phone } });
+            return res.json({ status: "success", "message": "Customer Updated", data: { id: result.id, full_name, shop_name } });
         } catch (err) {
             logger.error(err);
             console.log(err);

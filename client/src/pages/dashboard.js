@@ -24,8 +24,13 @@ export default class Dashboard extends Component {
                                 <li className="breadcrumb-item active">Overview</li>
                             </ol>
 
-                            <div className="row d-flex justify-content-center" align="center">
-									<h2>Welcome Admin!</h2>
+                            <div className="row mb-4" >
+									<div class="col-md-12" align="center">
+                                        <h2>Welcome Admin!</h2> 
+                                    </div>
+                                    <div class="col-md-3">
+                                       <a class="btn btn-primary" href="/create-request">Create Request</a>
+                                    </div>
                 
   
                             </div>

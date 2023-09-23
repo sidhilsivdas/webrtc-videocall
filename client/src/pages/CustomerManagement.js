@@ -20,9 +20,10 @@ const ManageModal = (props) => {
     let initialFormData = {
         //id:props.id || "",
         full_name: props.data.formData.full_name || "",
-        email: props.data.formData.email || "",
-        address: props.data.formData.address || "",
-        phone: props.data.formData.phone || ""
+        shop_name: props.data.formData.shop_name || "",
+        //email: props.data.formData.email || ".",
+        //address: props.data.formData.address || ".",
+        //phone: props.data.formData.phone || 0
     }
 
     const [formData, setFormData] = useState(initialFormData);
@@ -137,15 +138,26 @@ const ManageModal = (props) => {
                             <div className="form-row">
                                 <div className="col-md-12">
                                     <div className="form-label-group">
+                                        <input name="shop_name" value={formData.shop_name} onChange={handleInputChange} type="text" className={"form-control " + (errorData.shop_name ? 'is-invalid' : '')} autoFocus="autofocus" />
+                                        <label htmlFor="shop_name">Enter Shop Name</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* <div className="form-group">
+                            <div className="form-row">
+                                <div className="col-md-12">
+                                    <div className="form-label-group">
                                         <input name="email" value={formData.email} onChange={handleInputChange} type="text" className={"form-control " + (errorData.email ? 'is-invalid' : '')} autoFocus="autofocus" />
                                         <label htmlFor="email">Enter Email</label>
                                     </div>
                                 </div>
                             </div>
 
-                        </div>
+                        </div> */}
 
-                        <div className="form-group">
+                        {/* <div className="form-group">
                             <div className="form-row">
                                 <div className="col-md-12">
                                     <div className="form-label-group">
@@ -155,10 +167,10 @@ const ManageModal = (props) => {
                                 </div>
                             </div>
 
-                        </div>
+                        </div> */}
 
                         
-                        <div className="form-group">
+                        {/* <div className="form-group">
                             <div className="form-row">
                                 <div className="col-md-12">
                                     <div className="form-label-group">
@@ -168,7 +180,7 @@ const ManageModal = (props) => {
                                 </div>
                             </div>
 
-                        </div>
+                        </div> */}
 
 
                         <button className="btn btn-primary btn-block" type="submit" disabled={isLoading ? true : false}>Save &nbsp;&nbsp;&nbsp;
@@ -410,10 +422,8 @@ export default class CustomerManagement extends Component {
                                                 <tr>
                                                     <th>#</th>
                                                     <th>Name</th>
-                                                    <th>Email</th>
-                                                    <th>Address</th>
-                                                    <th>Phone</th>
-                                                    <th>Created At</th>
+                                                    <th>Shop Name</th>
+                                                    
 
                                                     <th>Actions</th>
                                                 </tr>
@@ -434,9 +444,8 @@ export default class CustomerManagement extends Component {
                                                         <tr key={"tr-" + i}>
                                                             <td>{object.id}</td>
                                                             <td>{object.full_name}</td>
-                                                            <td>{object.email}</td>
-                                                            <td>{object.address}</td>
-                                                            <td>{object.phone}</td>
+                                                            <td>{object.shop_name}</td>
+                                                          
                                                             <td>{moment(object.created_at, "YYYY-MM-DD HH:mm:ss").format('Do MMM YYYY, h:mm A')}</td>
 
 

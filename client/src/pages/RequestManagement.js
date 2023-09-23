@@ -457,7 +457,7 @@ export default class RequestManagement extends Component {
             viewModalStatus: false,
             viewId: 0,
             query: "",
-            selected_product_id: ""
+            selected_customer_id: ""
         };
         //This binding removeTag is necessary to make `this` work in the callback
         //this.removeEmployee = this.removeClient.bind(this);
@@ -480,7 +480,7 @@ export default class RequestManagement extends Component {
 
     setProductData = (obj) => {
         this.setState(
-            { selected_product_id: obj.id },
+            { selected_customer_id: obj.id },
             () => {
                 this.setData(1)
             });
@@ -557,7 +557,7 @@ export default class RequestManagement extends Component {
         };
 
 
-        const url = Constants.API_URL + "/stocks/?page=" + page + "&perPage=" + this.state.paginateData.itemsCountPerPage + "&product_id=" + this.state.selected_product_id;
+        const url = Constants.API_URL + "/requests/?page=" + page + "&perPage=" + this.state.paginateData.itemsCountPerPage + "&customer_id=" + this.state.selected_customer_id;
 
 
         if (this.state.q != "") {
@@ -566,7 +566,7 @@ export default class RequestManagement extends Component {
                 .then(result => {
 
                     var res = result.data;
-                    console.log(result);
+                    //console.log(result);
                     if (res.status == 'success') {
 
                         this.setState({ isLoading: false, users: res.data.items, paginateData: { ...this.state.paginateData, totalItemsCount: res.data.totalCount } });
@@ -709,9 +709,9 @@ export default class RequestManagement extends Component {
                                                         cacheOptions
                                                         //isMulti
                                                         //components={animatedComponents}
-                                                        getOptionLabel={(e) => e.product_name}
+                                                        getOptionLabel={(e) => `${e.full_name} - ${e.shop_name}`}
                                                         getOptionValue={(e) => e.id}
-                                                        loadOptions={() => this.loadOptions('products')}
+                                                        loadOptions={() => this.loadOptions('customers')}
                                                         onInputChange={(value) => this.setQuery(value)}
                                                         onChange={(value) => this.setProductData(value)}
                                                         //className={errorData.product_id ? 'react-select-form-controll-error' : ''}
@@ -732,6 +732,7 @@ export default class RequestManagement extends Component {
                                                         <tr>
                                                             <th>#</th>
                                                             <th>Customer Name</th>
+                                                            <th>Shop Name</th>
                                                             <th>Created At</th>
 
                                                             <th>Actions</th>
@@ -753,9 +754,9 @@ export default class RequestManagement extends Component {
                                                                 <tr key={"tr-" + i}>
                                                                     <td>{object.id}</td>
 
-                                                                    <td>{object.product ? object.product.product_name : ""}</td>
-                                                                    <td>{object.color ? object.color.color_name : ""}</td>
-                                                                    <td>{object.quantity}</td>
+                                                                    <td>{object.customer ? object.customer.full_name : ""}</td>
+                                                                    <td>{object.customer ? object.customer.shop_name : ""}</td>
+                                                                    
 
                                                                     <td>{moment(object.created_at, "YYYY-MM-DD HH:mm:ss").format('Do MMM YYYY, h:mm A')}</td>
 

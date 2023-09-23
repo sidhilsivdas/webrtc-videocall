@@ -10,6 +10,7 @@ const colorRouter = require("./routes/colors/colors.routes");
 const stockRouter = require("./routes/stocks/stocks.routes");
 const customerRouter = require("./routes/customers/customers.routes");
 const requestRouter = require("./routes/requests/requests.routes");
+const reportRouter = require("./routes/reports/reports.routes");
 
 const {adminAuth} = require("./middlewares/adminAuth");
 const app = express();
@@ -27,6 +28,7 @@ app.use("/colors", adminAuth, colorRouter);
 app.use("/stocks", adminAuth, stockRouter);
 app.use("/customers", adminAuth, customerRouter);
 app.use("/requests", adminAuth, requestRouter);
+app.use("/reports", adminAuth, reportRouter);
 
 app.get('/*', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
