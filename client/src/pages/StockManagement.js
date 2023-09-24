@@ -141,7 +141,7 @@ const ViewModal = (props) => {
                                                     tableData && tableData.map((object, i) =>
                                                         <tr key={"tr-" + i}>
                                                             <td>{object.id}</td>
-                                                            <td>{object.description}</td>
+                                                            <td>{(object.customer? `${object.description} to ${object.customer.full_name}`: object.description) }</td>
                                                             <td>{object.type == "add" ? 'Stock Added' : 'Sold'}</td>
                                                             <td>{object.quantity_in}</td>
                                                             <td>{object.quantity_before_update}</td>

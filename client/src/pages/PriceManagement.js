@@ -278,7 +278,7 @@ export default class PriceManagement extends Component {
                 .then(result => {
 
                     var res = result.data;
-                    console.log(result);
+                    //console.log(result);
                     if (res.status == 'success') {
 
                         this.setState({ isLoading: false, users: res.data.items, paginateData: { ...this.state.paginateData, totalItemsCount: res.data.totalCount } });

@@ -10,6 +10,7 @@ const Color = models.color;
 const Stock = models.stock;
 const StockDetails = models.stock_details;
 const PriceDetails = models.price_details;
+const Customer = models.customer;
 const Sequelize = require("sequelize");
 const stockController = {
     getAll: async (req, res) => {
@@ -72,6 +73,9 @@ const stockController = {
             
 
             let whereObj = {};
+            if(id){
+                whereObj.id = +id;
+            }
             
             
 
@@ -240,7 +244,7 @@ const stockController = {
 
             const data = await StockDetails.findAndCountAll({
                 attributes: ['id', 'stock_id','type', 'description', 'quantity_in','quantity_before_update','quantity_after_update','created_at'],
-                //include:[Product, Color],
+                include:[Customer],
                 where: whereObj,
                 order: [
                     ['id', 'DESC'],

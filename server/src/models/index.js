@@ -36,7 +36,7 @@ Object.keys(db).forEach((modelName) => {
     
 });
 
-console.log("ssssss",db.category.associate);
+//console.log("ssssss",db.category.associate);
 
 
 
