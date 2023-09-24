@@ -21,28 +21,28 @@ const requestController = {
             let page = req.query.page;
             let perPage = req.query.perPage;
             let query = req.query.q;
-            if(!(page && perPage)){
+            if (!(page && perPage)) {
                 return res.status(422).json({ "status": "error", "message": "Invalid form data" });
             }
             page = (page - 1) * perPage;
 
             let whereObj = {};
             let whereProdObj = {}
-            if(req.query.customer_id){
+            if (req.query.customer_id) {
                 whereObj.customer_id = +req.query.customer_id;
             }
-            
+
 
             //console.log(whereProdObj)  
-            
+
 
             const data = await Request.findAndCountAll({
                 attributes: ['id', 'customer_id', 'created_at'],
-                include:[{
+                include: [{
                     model: Customer,
                     as: 'customer',
-                   // where: whereProdObj
-                  }],
+                    // where: whereProdObj
+                }],
                 where: whereObj,
                 order: [
                     ['id', 'DESC'],
@@ -136,7 +136,7 @@ const requestController = {
                             `UPDATE ${tableName} 
                              SET quantity='${(+item.stock_quantity - (+item.quantity))}' 
                              WHERE id=${+item.stock_id};`
-                        , { transaction: t })
+                            , { transaction: t })
                     );
 
                 });
@@ -148,7 +148,7 @@ const requestController = {
                 //let stockUpdateRes = await Stock.bulkCreate(stockUpdateArr, { updateOnDuplicate: ['quantity'] }, {transaction: t});
                 let stockDetailsRes = await StocksDetails.bulkCreate(stockDetailsArr, { transaction: t });
 
-            
+
                 const resultPr = await Promise.all(statements);
 
 
@@ -221,6 +221,34 @@ const requestController = {
             return res.status(500).json({ "status": "error" });
         }
 
+    },
+
+    getRequestDetails: async (req, res) => {
+        try {
+            const id = req.params.id;
+
+            const reqData = await Request.findOne({where: { id }, include:[Customer]});
+
+            const dbData = await RequestDetails.findAll({
+                where: { request_id: +id },
+                order: [['request_item_id','ASC']],
+                include: [{
+                    model: models.stock,
+                    include: [{
+                        model: models.product
+                    },{
+                        model: models.color
+                    }]
+                }]
+            });
+           
+
+            return res.json({ "status": "success", "data": { reqData,items: dbData, totalCount: 0 } });
+        } catch (err) {
+            logger.error(err);
+            console.log(err);
+            return res.status(500).json({ "status": "error" });
+        }
     }
 }
 

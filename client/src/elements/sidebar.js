@@ -140,7 +140,7 @@ export default class Sidebar extends Component {
                     <Link to={'/products/color-management'} className={"nav-link " + (this.state.color_management ? "active" : "")}><h6 className="dropdown-header">Color Management</h6></Link>
                     <Link to={'/products/product-management'} className={"nav-link " + (this.state.product_management ? "active" : "")}><h6 className="dropdown-header">Product Management</h6></Link>
                     <Link to={'/products/stock-management'} className={"nav-link " + (this.state.stock_management ? "active" : "")}><h6 className="dropdown-header">Stock Management</h6></Link>
-                    <Link to={'/products/price-management'} className={"nav-link " + (this.state.price_management ? "active" : "")}><h6 className="dropdown-header">Price Management</h6></Link>
+                    
 
                     {/* <div className="dropdown-divider"></div> */}
                 </div>

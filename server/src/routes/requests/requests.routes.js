@@ -8,5 +8,8 @@ requestRouter.post("/", requestController.create);
 requestRouter.put("/:id", requestController.update);
 requestRouter.delete("/:id", requestController.delete);
 
+//request-details
+requestRouter.get("/request-details/:id", requestController.getRequestDetails);
+
 
 module.exports = requestRouter;

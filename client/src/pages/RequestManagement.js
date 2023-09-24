@@ -21,33 +21,21 @@ const ViewModal = (props) => {
 
 
 
-    let initialStockData = {
-        product: { product_name: "" },
-        color: { color_name: "" },
-        quantity: 0
-    }
+
 
     const [tableData, setTableData] = useState([]);
-    const [stockData, setStockData] = useState({ ...initialStockData });
-    const [paginateData, setPaginationData] = useState({
-        currentPage: 1,
-        itemsCountPerPage: 50,
-        totalItemsCount: 0
-    });
+    let totalPrice = 0;
+    let totalQty = 0;
+
 
     useEffect(() => {
-        setData(1);
+        setData();
     }, []);
 
 
-    const handlePageChange = (pageNumber) => {
-        //alert(pageNumber);
-        // console.log("triggered", pageNumber);
-        setPaginationData({ paginateData: { ...paginateData, currentPage: pageNumber } });
-        setData(pageNumber);
-    }
 
-    const setData = (page) => {
+
+    const setData = () => {
         const token = localStorage.getItem('token');
         var config = {
             headers: {
@@ -56,7 +44,7 @@ const ViewModal = (props) => {
         };
 
 
-        const url = Constants.API_URL + "/stocks/get-stock-history/" + props.data.viewId + "?page=" + page + "&perPage=" + paginateData.itemsCountPerPage;
+        const url = Constants.API_URL + "/requests/request-details/" + props.data.viewId;
 
 
         if (true) {
@@ -69,8 +57,8 @@ const ViewModal = (props) => {
                     if (res.status == 'success') {
 
                         setTableData([...res.data.items]);
-                        setPaginationData({ ...paginateData, totalItemsCount: res.data.totalCount });
-                        setStockData({ ...res.data.stockData })
+                        //setPaginationData({ ...paginateData, totalItemsCount: res.data.totalCount });
+                        //setStockData({ ...res.data.stockData })
                         // console.log("paginate", this.state.paginateData);
                         //console.log("kkkkk",tableData)
 
@@ -101,10 +89,10 @@ const ViewModal = (props) => {
                             <div className="card mx-auto">
                                 <div className="card-header">
                                     <div className="row">
-                                        <div className="col-md-3"><p>Total Results : {paginateData.totalItemsCount ? paginateData.totalItemsCount : 0}</p></div>
+                                        <div className="col-md-3"><p></p></div>
                                         <div className="col-md-9 float-right1" >
 
-                                            {stockData ? stockData.product.product_name : ""} | {stockData ? stockData.color.color_name : ""} | Stock: {stockData ? stockData.quantity : 0}
+
 
                                         </div>
                                     </div>
@@ -118,11 +106,11 @@ const ViewModal = (props) => {
                                                 <tr>
                                                     <th>#</th>
                                                     <th>Description</th>
-                                                    <th>Type</th>
-                                                    <th>Quantity</th>
-                                                    <th>Quantity Before</th>
-                                                    <th>Quantity After</th>
-                                                    <th>Created At</th>
+                                                    <th>Color</th>
+                                                    <th>QTY</th>
+                                                    <th>Price</th>
+                                                    <th>Amount</th>
+
 
                                                 </tr>
                                             </thead>
@@ -138,22 +126,29 @@ const ViewModal = (props) => {
                                             </tfoot>*/}
                                             <tbody>
                                                 {
-                                                    tableData && tableData.map((object, i) =>
-                                                        <tr key={"tr-" + i}>
-                                                            <td>{object.id}</td>
-                                                            <td>{object.description}</td>
-                                                            <td>{object.type == "add" ? 'Stock Added' : 'Sold'}</td>
-                                                            <td>{object.quantity_in}</td>
-                                                            <td>{object.quantity_before_update}</td>
-                                                            <td>{object.quantity_after_update}</td>
 
 
-                                                            <td>{moment(object.created_at, "YYYY-MM-DD HH:mm:ss").format('Do MMM YYYY, h:mm A')}</td>
+                                                    tableData && tableData.map((object, i) => {
+                                                        const price = object.price * object.quantity;
+                                                        totalPrice += price;
+                                                        totalQty += object.quantity;
+                                                        //console.log(object);
+                                                        return(<tr key={"tr-" + i}>
+                                                            <td>{object.request_item_id}</td>
+                                                            <td>{object.stock.product.product_name} X {object.quantity}</td>
+                                                            <td>{object.stock.color.color_name}</td>
+                                                            <td>{object.quantity}</td>
+                                                            <td>{object.price}</td>
+                                                            <td>{price}</td>
 
 
 
-                                                        </tr>
-                                                    )
+
+
+
+
+                                                        </tr>)
+                                                    })
                                                 }
 
                                                 {
@@ -162,31 +157,28 @@ const ViewModal = (props) => {
 
                                                 }
                                             </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                <td colSpan="3">
+
+                                                </td>
+                                                <td>
+                                                    {totalQty}
+                                                </td>
+                                                <td>
+
+                                                </td>
+                                                <td>
+                                                    {totalPrice}
+                                                </td>
+                                                </tr>
+                                            </tfoot>
                                         </table>
                                     </div>
                                 </div>
 
                                 <div className="card-footer small text-muted">
-                                    {paginateData.totalItemsCount ?
-                                        (<div className="row">
-                                            <div className="col-md-12" >
-                                                <Pagination
-                                                    itemClass="page-item"
-                                                    linkClass="page-link"
-                                                    prevPageText="Prev"
-                                                    firstPageText="First"
-                                                    lastPageText="Last"
-                                                    nextPageText="Next"
-                                                    innerClass="pagination justify-content-end"
-                                                    activePage={paginateData.currentPage}
-                                                    itemsCountPerPage={paginateData.itemsCountPerPage}
-                                                    totalItemsCount={paginateData.totalItemsCount}
-                                                    pageRangeDisplayed={5}
-                                                    onChange={handlePageChange}
-                                                />
-                                            </div>
-                                        </div>) : null
-                                    }
+
                                 </div>
                             </div>
                         </div>
@@ -205,234 +197,6 @@ const ViewModal = (props) => {
     )
 }
 
-const ManageModal = (props) => {
-
-
-
-    let initialFormData = {
-        product_id: "",
-        color_id: "",
-        quantity: "",
-        description: ""
-
-    }
-
-    const [formData, setFormData] = useState(initialFormData);
-    const [errorData, setErrorData] = useState({});
-    const [isLoading, setIsLoading] = useState(false);
-    const [formAction, setFormAction] = useState("create");
-
-    const [query, setQuery] = useState("");
-
-    const [testdata, setTestData] = useState(false);
-    const animatedComponents = makeAnimated();
-
-    const validateForm = () => {
-        const formClone = { ...formData };
-        let errorDetails = {};
-        setErrorData({ ...errorDetails });
-        for (const [key, value] of Object.entries(formClone)) {
-
-            if (!value) {
-                errorDetails[key] = true
-            }
-        };
-
-        if (Object.keys(errorDetails).length != 0) {
-            setErrorData({ ...errorDetails });
-            return false;
-        }
-        //console.log(errorDetails);
-        return true;
-    }
-
-    const handleInputChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    }
-
-    const handleSubmit = (e) => {
-
-        e.preventDefault();
-        setIsLoading(true);
-        const token = localStorage.getItem('token');
-
-        const headers = {
-            "access-token": token
-        }
-
-        let method;
-        let url;
-        if (props.data.formFrom == "create") {
-            url = Constants.API_URL + "/stocks";
-            method = "POST";
-        } else {
-            url = Constants.API_URL + "/stocks/" + props.data.formFrom;
-            method = "PUT";
-        }
-
-        const formObj = { ...formData, type: "add" };
-
-        if (validateForm()) {
-            //console.log("jjjjjjj")
-            axios({
-                method: method,
-                url: url,
-                data: formObj,
-                headers
-            }).then(result => {
-                setErrorData({});
-                setIsLoading(false);
-                if (result.data.status) {
-                    //setIsLoading(false);
-                    props.setModalStatus();
-                    alert("Record Saved Successfully");
-                    //this.connectParent();
-
-                }
-            })
-                .catch(error => {
-                    if (error.response) {
-                        //props.setModalStatus();
-                        setIsLoading(false);
-                        alert(error.response.data.message ? error.response.data.message : 'Server error');
-                        //console.log(error.response.headers);
-                    }
-                });
-
-        } else {
-            setIsLoading(false);
-        }
-
-
-
-    }
-
-    const loadOptions = (coll) => {
-        const token = localStorage.getItem('token');
-        var config = {
-            headers: {
-                "access-token": token
-            }
-        };
-
-        const url = Constants.API_URL + "/" + coll + "/?page=1&perPage=50&q=" + query;
-        return axios.get(url, config)
-            .then(result => {
-
-                var res = result.data;
-                return res.data.items;
-            })
-            .catch(error => {
-                console.log(error);
-                //this.setState({ authError: true, isLoading: false });
-            });
-    }
-
-    return (
-        <div>
-
-
-            <Modal show={true} size="lg">
-                <Modal.Header closeButton onClick={props.setModalStatus}>
-                    <Modal.Title></Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <form onSubmit={handleSubmit}>
-
-                        <div className="form-group">
-                            <div className="form-row">
-                                <div className="col-md-12">
-                                    <div className="form-label-group">
-
-                                        <AsyncSelect
-                                            cacheOptions
-                                            //isMulti
-                                            components={animatedComponents}
-                                            getOptionLabel={(e) => e.product_name}
-                                            getOptionValue={(e) => e.id}
-                                            loadOptions={() => loadOptions('products')}
-                                            onInputChange={(value) => setQuery(value)}
-                                            onChange={(value) => setFormData({ ...formData, product_id: +value.id })}
-                                            className={errorData.product_id ? 'react-select-form-controll-error' : ''}
-                                            placeholder={'Select Product'}
-                                        />
-
-
-
-
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="form-group">
-                            <div className="form-row">
-                                <div className="col-md-12">
-                                    <div className="form-label-group">
-                                        <AsyncSelect
-                                            cacheOptions
-                                            //isMulti
-                                            components={animatedComponents}
-                                            getOptionLabel={(e) => e.color_name}
-                                            getOptionValue={(e) => e.id}
-                                            loadOptions={() => loadOptions('colors')}
-                                            onInputChange={(value) => setQuery(value)}
-                                            onChange={(value) => setFormData({ ...formData, color_id: +value.id })}
-                                            className={errorData.color_id ? 'react-select-form-controll-error' : ''}
-                                            placeholder={'Select Color'}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="form-group">
-                            <div className="form-row">
-                                <div className="col-md-12">
-                                    <div className="form-label-group">
-                                        <input name="quantity" value={formData.quantity} onChange={handleInputChange} type="number" className={"form-control " + (errorData.quantity ? 'is-invalid' : '')} autoFocus="autofocus" />
-                                        <label htmlFor="quantity">Enter Quantity</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="form-group">
-                            <div className="form-row">
-                                <div className="col-md-12">
-                                    <div className="form-label-group">
-                                        <textarea placeholder={"Description"} name="description" value={formData.description} onChange={handleInputChange} type="text" className={"form-control " + (errorData.description ? 'is-invalid' : '')}></textarea>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-
-
-                        <button className="btn btn-primary btn-block" type="submit" disabled={isLoading ? true : false}>Save &nbsp;&nbsp;&nbsp;
-                            {isLoading ? (
-                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            ) : (
-                                <span></span>
-                            )}
-                        </button>
-
-                    </form>
-
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={props.setModalStatus}>
-                        Close
-                    </Button>
-
-                </Modal.Footer>
-            </Modal>
-
-        </div>
-    )
-}
 
 
 export default class RequestManagement extends Component {
@@ -645,8 +409,8 @@ export default class RequestManagement extends Component {
     }
 
     setModalStatus = () => {
-        this.setState({ modalStatus: false, paginateData: { ...this.state.paginateData, currentPage: 1 } });
-        this.setData(1);
+        this.setState({ modalStatus: false });
+        //this.setData();
     }
 
     setViewModalStatus = () => {
@@ -654,7 +418,7 @@ export default class RequestManagement extends Component {
 
     }
 
-    viewStockDetails = (obj) => {
+    viewRequestDetails = (obj) => {
         this.setState({ viewModalStatus: true, viewId: obj.id });
 
     }
@@ -671,7 +435,7 @@ export default class RequestManagement extends Component {
         return (
             <div>
 
-                
+
                 <Alert
                     alertData={
                         {
@@ -681,7 +445,7 @@ export default class RequestManagement extends Component {
                         }
                     } />
 
-
+                {viewModalStatus && <ViewModal data={{ viewId: this.state.viewId }} setViewModalStatus={this.setViewModalStatus}></ViewModal>}
 
                 <Header />
                 <div id="wrapper">
@@ -719,7 +483,7 @@ export default class RequestManagement extends Component {
                                                     />
                                                 </div>
                                                 <div className="col-md-3 float-right1" >
-                                                <Link className="btn btn-primary float-right" to="/create-request">Create Request</Link>
+                                                    <Link className="btn btn-primary float-right" to="/create-request">Create Request</Link>
                                                 </div>
                                             </div>
                                         </div>
@@ -756,15 +520,17 @@ export default class RequestManagement extends Component {
 
                                                                     <td>{object.customer ? object.customer.full_name : ""}</td>
                                                                     <td>{object.customer ? object.customer.shop_name : ""}</td>
-                                                                    
+
 
                                                                     <td>{moment(object.created_at, "YYYY-MM-DD HH:mm:ss").format('Do MMM YYYY, h:mm A')}</td>
 
 
                                                                     <td>
-                                                                       
 
-                                                                        <Link className="btn btn-success btn-sm m-1" to={`/edit-request/${object.id}`}><i className="fa fa-edit"></i></Link>
+
+                                                                        <Link className="btn btn-success btn-sm m-1" to={`#`} onClick={
+                                                                            () => this.viewRequestDetails(object)
+                                                                        }><i className="fa fa-edit"></i></Link>
 
                                                                     </td>
                                                                 </tr>
