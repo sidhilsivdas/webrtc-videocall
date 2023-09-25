@@ -55,7 +55,7 @@ const customerController = {
                 return res.status(422).json({ "status": "error", "message": "Customer already exists" });
             }
             
-            const customer = await Customer.create({ full_name, shop_name, email:"", address:"", phone:"", created_by:req.user.id });
+            const customer = await Customer.create({ full_name, shop_name, email:"", address:"", phone:0, created_by:req.user.id });
 
             return res.json({ status: "success", "message": "Created", data: { id: customer.id, full_name, shop_name } });
         } catch (err) {
@@ -82,7 +82,7 @@ const customerController = {
            
 
             const result = await Customer.update(
-                { full_name, shop_name, address:"", phone:"" },
+                { full_name, shop_name, address:"", phone:0 },
                 { where: { id: req.params.id } }
             )
 
