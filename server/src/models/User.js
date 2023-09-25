@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
             full_name: DataTypes.STRING,
             email: DataTypes.STRING,
             password: DataTypes.STRING(1000),
-            access_token: DataTypes.STRING(1000),
+            access_token: DataTypes.TEXT('long'),
             role:DataTypes.STRING,
             created_by: DataTypes.INTEGER,
             created_at:{ 

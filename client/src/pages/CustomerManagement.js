@@ -323,7 +323,7 @@ export default class CustomerManagement extends Component {
 
 
 
-            const url = Constants.API_URL + "/users/" + id;
+            const url = Constants.API_URL + "/customers/" + id;
             axios.delete(url, config)
                 .then(result => {
 
